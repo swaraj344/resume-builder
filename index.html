@@ -1,0 +1,1330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resume Builder — Swaraj's Template</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    margin: 0;
+    background: #f5f5f7;
+    color: #222;
+    -webkit-font-smoothing: antialiased;
+  }
+  .app {
+    display: grid;
+    grid-template-columns: 420px 1fr;
+    height: 100vh;
+  }
+  /* ---------- Sidebar ---------- */
+  .sidebar {
+    background: #fff;
+    border-right: 1px solid #e0e0e4;
+    overflow-y: auto;
+    padding: 0;
+  }
+  .sidebar-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid #e8e8ec;
+    position: sticky;
+    top: 0;
+    background: #fff;
+    z-index: 10;
+  }
+  .sidebar-header h1 { margin: 0 0 10px 0; font-size: 18px; font-weight: 600; }
+  .tabs { display: flex; gap: 4px; }
+  .tab {
+    flex: 1; padding: 8px 10px; font-size: 13px; border: none;
+    background: #f0f0f4; color: #444; cursor: pointer; border-radius: 6px;
+    font-weight: 500;
+  }
+  .tab.active { background: #2563eb; color: #fff; }
+  .sidebar-body { padding: 16px 20px; }
+  .sidebar-actions {
+    position: sticky; bottom: 0; background: #fff;
+    padding: 12px 20px; border-top: 1px solid #e8e8ec;
+    display: flex; gap: 8px;
+  }
+  .sidebar-actions button {
+    flex: 1; padding: 10px; border: none; border-radius: 6px;
+    font-size: 13px; font-weight: 600; cursor: pointer;
+  }
+  .btn-primary { background: #2563eb; color: #fff; }
+  .btn-primary:hover { background: #1d4ed8; }
+  .btn-secondary { background: #f0f0f4; color: #333; }
+  .btn-secondary:hover { background: #e4e4ea; }
+  .btn-danger { background: #fee2e2; color: #b91c1c; }
+  .btn-danger:hover { background: #fecaca; }
+
+  /* ---------- Form ---------- */
+  fieldset {
+    border: 1px solid #e4e4ea;
+    border-radius: 8px;
+    padding: 14px;
+    margin: 0 0 14px 0;
+    background: #fafafc;
+  }
+  legend { padding: 0 6px; font-weight: 600; font-size: 13px; color: #333; }
+  label {
+    display: block; font-size: 12px; color: #555; margin-bottom: 3px;
+    font-weight: 500;
+  }
+  input, textarea {
+    width: 100%; padding: 7px 9px; font-size: 13px;
+    border: 1px solid #d4d4d8; border-radius: 5px;
+    font-family: inherit; background: #fff;
+  }
+  textarea { resize: vertical; min-height: 60px; }
+  input:focus, textarea:focus {
+    outline: none; border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  }
+  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px; }
+  .row.three { grid-template-columns: 1fr 1fr 1fr; }
+  .form-group { margin-bottom: 8px; }
+  .nested {
+    margin-left: 0; padding: 10px;
+    border: 1px dashed #d4d4d8; border-radius: 6px;
+    background: #fff; margin-bottom: 10px;
+  }
+  .nested h4 { margin: 0 0 8px 0; font-size: 13px; display: flex; justify-content: space-between; align-items: center; }
+  .mini-btn {
+    padding: 3px 8px; font-size: 11px; border: 1px solid #d4d4d8;
+    background: #fff; border-radius: 4px; cursor: pointer;
+    color: #333;
+  }
+  .mini-btn:hover { background: #f4f4f6; }
+  .mini-btn.danger { color: #b91c1c; border-color: #fecaca; }
+  .mini-btn.danger:hover { background: #fee2e2; }
+  .add-btn {
+    width: 100%; padding: 8px; margin-top: 6px;
+    border: 1px dashed #a0a0a8; background: transparent;
+    color: #555; border-radius: 6px; cursor: pointer; font-size: 13px;
+  }
+  .add-btn:hover { background: #f4f4f6; color: #2563eb; border-color: #2563eb; }
+
+  /* ---------- Preview ---------- */
+  .preview-pane {
+    overflow-y: auto;
+    padding: 30px;
+    background: #e8e8ec;
+  }
+  .resume-preview {
+    background: #fff;
+    width: 8.5in;
+    min-height: 11in;
+    margin: 0 auto;
+    padding: 0.5in 0.7in;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.08);
+    font-family: Calibri, "Carlito", Arial, sans-serif;
+    color: #222;
+    font-size: 10.5pt;
+    line-height: 1.32;
+  }
+  .r-name { text-align: center; font-size: 20pt; font-weight: bold; margin-bottom: 2pt; letter-spacing: 0.5pt; }
+  .r-tagline { text-align: center; font-size: 11pt; color: #444; margin-bottom: 4pt; }
+  .r-contact { text-align: center; font-size: 10pt; margin-bottom: 10pt; }
+  .r-contact a { color: #0563C1; text-decoration: underline; }
+  .r-contact .sep { color: #888; margin: 0 6px; }
+  .r-heading {
+    font-size: 11.5pt; font-weight: bold; text-transform: uppercase;
+    letter-spacing: 1pt; border-bottom: 0.5pt solid #000;
+    padding-bottom: 2pt; margin-top: 8pt; margin-bottom: 4pt;
+  }
+  .r-summary { margin-bottom: 4pt; text-align: justify; }
+  .r-skill-row { margin-bottom: 0; }
+  .r-skill-row b { font-weight: 600; }
+  .r-job-title { display: flex; justify-content: space-between; font-weight: bold; font-size: 11pt; margin-top: 6pt; }
+  .r-job-company { font-style: italic; color: #555; font-size: 10.5pt; margin-bottom: 2pt; }
+  .r-project-head { font-size: 10.5pt; margin-top: 4pt; margin-bottom: 2pt; }
+  .r-project-head b { font-weight: bold; }
+  .r-project-head span { color: #444; }
+  .r-bullets { margin: 0; padding-left: 18px; }
+  .r-bullets li { margin-bottom: 0; }
+  .r-tech { font-size: 9.5pt; color: #555; font-style: italic; margin-left: 18px; margin-top: 2pt; margin-bottom: 4pt; }
+  .r-tech b { font-weight: bold; font-style: normal; }
+  .r-edu-row { display: flex; justify-content: space-between; font-weight: bold; margin-top: 4pt; }
+  .r-edu-school { font-style: italic; color: #555; }
+
+  /* ---------- Modals ---------- */
+  .modal-backdrop {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+    display: none; align-items: center; justify-content: center;
+    z-index: 100;
+  }
+  .modal-backdrop.active { display: flex; }
+  .modal {
+    background: #fff; border-radius: 10px; padding: 24px;
+    max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto;
+  }
+  .modal h2 { margin-top: 0; font-size: 18px; }
+  .history-item {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 12px; border: 1px solid #e4e4ea; border-radius: 6px;
+    margin-bottom: 6px; background: #fafafc;
+  }
+  .history-item:hover { background: #f0f0f4; }
+  .history-info { flex: 1; min-width: 0; }
+  .history-info .name { font-weight: 600; font-size: 14px; margin-bottom: 2px; }
+  .history-info .date { font-size: 11px; color: #777; }
+  .history-actions { display: flex; gap: 6px; }
+
+  /* ---------- Print ---------- */
+  @media print {
+    body { background: #fff; }
+    .sidebar, .preview-pane-header { display: none !important; }
+    .app { display: block; }
+    .preview-pane { overflow: visible; padding: 0; background: #fff; }
+    .resume-preview { box-shadow: none; margin: 0; padding: 0.5in 0.7in; width: 100%; }
+    @page { size: letter; margin: 0; }
+  }
+  .preview-pane-header {
+    background: #fff; padding: 10px 20px; border-bottom: 1px solid #e0e0e4;
+    display: flex; justify-content: space-between; align-items: center;
+    position: sticky; top: 0; z-index: 5;
+    margin: -30px -30px 20px -30px;
+  }
+  .preview-pane-header h2 { margin: 0; font-size: 15px; font-weight: 600; }
+  .preview-pane-header .hint { font-size: 12px; color: #777; }
+
+  #toast {
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+    background: #222; color: #fff; padding: 10px 20px; border-radius: 6px;
+    font-size: 13px; opacity: 0; transition: opacity 0.3s;
+    pointer-events: none; z-index: 200;
+  }
+  #toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <!-- ---------- SIDEBAR: FORM ---------- -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <h1>📄 Resume Builder</h1>
+      <div class="tabs">
+        <button class="tab active" data-tab="form">Edit</button>
+        <button class="tab" data-tab="history">History</button>
+      </div>
+    </div>
+
+    <div class="sidebar-body" id="formPane">
+      <fieldset>
+        <legend>Resume Name (for history)</legend>
+        <input type="text" id="resumeName" placeholder="e.g. Swaraj — Senior Flutter v3">
+      </fieldset>
+
+      <fieldset>
+        <legend>Personal Info</legend>
+        <div class="form-group"><label>Full Name</label><input type="text" id="fullName"></div>
+        <div class="form-group"><label>Role / Tagline</label><input type="text" id="tagline" placeholder="e.g. Senior Flutter Developer | 5+ Years Experience"></div>
+        <div class="row">
+          <div><label>Location</label><input type="text" id="location"></div>
+          <div><label>Phone</label><input type="text" id="phone"></div>
+        </div>
+        <div class="form-group"><label>Email</label><input type="email" id="email"></div>
+        <div class="row">
+          <div><label>LinkedIn URL</label><input type="text" id="linkedin" placeholder="linkedin.com/in/..."></div>
+          <div><label>Portfolio URL</label><input type="text" id="portfolio"></div>
+        </div>
+        <div class="form-group"><label>GitHub URL</label><input type="text" id="github"></div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Professional Summary</legend>
+        <textarea id="summary" rows="5"></textarea>
+      </fieldset>
+
+      <fieldset>
+        <legend>Technical Skills</legend>
+        <div id="skillsList"></div>
+        <button class="add-btn" onclick="addSkill()">+ Add Skill Category</button>
+      </fieldset>
+
+      <fieldset>
+        <legend>Work Experience</legend>
+        <div id="experienceList"></div>
+        <button class="add-btn" onclick="addExperience()">+ Add Job</button>
+      </fieldset>
+
+      <fieldset>
+        <legend>Education</legend>
+        <div id="educationList"></div>
+        <button class="add-btn" onclick="addEducation()">+ Add Degree</button>
+      </fieldset>
+    </div>
+
+    <div class="sidebar-body" id="historyPane" style="display:none;">
+      <div id="historyList"></div>
+      <p id="historyEmpty" style="color:#888;font-size:13px;text-align:center;margin-top:20px;display:none;">No saved resumes yet.</p>
+    </div>
+
+    <div class="sidebar-actions">
+      <button class="btn-secondary" onclick="newResume()" title="Start a new resume">New</button>
+      <button class="btn-secondary" onclick="saveResume()" title="Save current resume to history">Save</button>
+      <button class="btn-primary" onclick="exportDocx()">DOCX</button>
+      <button class="btn-primary" onclick="exportPdf()">PDF</button>
+    </div>
+    <div class="sidebar-actions" style="border-top:none;padding-top:0;">
+      <button class="btn-secondary" onclick="exportCurrentResume()" title="Download the current resume as a single JSON file">⬇ Export JSON</button>
+      <button class="btn-secondary" onclick="document.getElementById('importSingleFile').click()" title="Import a single resume JSON file">⬆ Import JSON</button>
+    </div>
+    <div class="sidebar-actions" style="border-top:none;padding-top:0;">
+      <button class="btn-secondary" onclick="exportBackup()" title="Download ALL history as one backup.json">⬇ Backup All</button>
+      <button class="btn-secondary" onclick="document.getElementById('importFile').click()" title="Restore ALL history from a backup.json">⬆ Restore All</button>
+    </div>
+    <input type="file" id="importFile" accept=".json,application/json" style="display:none" onchange="importBackup(event)">
+    <input type="file" id="importSingleFile" accept=".json,application/json" style="display:none" onchange="importSingle(event)">
+    <div class="sidebar-actions" style="border-top:none;padding-top:0;">
+      <button class="btn-secondary" onclick="showSchemaHelp()" title="Show JSON schema for hand-editing" style="flex:1;">ⓘ JSON Schema Reference</button>
+    </div>
+  </aside>
+
+  <!-- ---------- PREVIEW ---------- -->
+  <main class="preview-pane">
+    <div class="preview-pane-header">
+      <h2>Live Preview</h2>
+      <span class="hint">PDF = browser's "Save as PDF" dialog · DOCX = Word-compatible</span>
+    </div>
+    <div class="resume-preview" id="preview"></div>
+  </main>
+</div>
+
+<!-- ---------- Modals ---------- -->
+<div class="modal-backdrop" id="confirmModal">
+  <div class="modal">
+    <h2 id="confirmTitle">Confirm</h2>
+    <p id="confirmMessage"></p>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px;">
+      <button class="mini-btn" onclick="closeConfirm()">Cancel</button>
+      <button class="mini-btn danger" id="confirmOkBtn">Delete</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="schemaModal">
+  <div class="modal" style="max-width: 700px;">
+    <h2>📋 JSON Schema Reference</h2>
+    <p style="font-size:13px;color:#555;margin-bottom:10px;">
+      You can hand-edit single-resume JSON files and import them with <b>⬆ Import One</b>.
+      Exported files wrap the resume in a container object; <b>you can also import a bare data object</b> using just the fields below.
+    </p>
+    <p style="font-size:13px;color:#555;margin-bottom:6px;"><b>Minimum viable shape</b> (paste into a .json file and import):</p>
+    <pre style="background:#1e1e24;color:#e0e0e4;padding:12px;border-radius:6px;font-size:11px;line-height:1.5;overflow:auto;max-height:360px;margin:0 0 10px 0;"><code>{
+  "fullName": "Jane Doe",
+  "tagline": "Full-Stack Engineer  |  3+ Years",
+  "location": "Mumbai, India",
+  "phone": "+91 9999999999",
+  "email": "jane@example.com",
+  "linkedin": "linkedin.com/in/jane-doe",
+  "portfolio": "jane.dev",
+  "github": "github.com/jane-doe",
+  "summary": "Full-stack engineer with experience in...",
+  "skills": [
+    { "category": "Languages", "items": "TypeScript, Python, Go" },
+    { "category": "Frameworks", "items": "React, Next.js, FastAPI" }
+  ],
+  "experience": [
+    {
+      "title": "Senior Engineer",
+      "company": "Acme Corp",
+      "location": "Remote",
+      "dates": "Jan 2024 – Present",
+      "projects": [
+        {
+          "name": "Project X",
+          "tagline": "Internal analytics platform",
+          "bullets": [
+            "Built a real-time dashboard used by 200+ users.",
+            "Cut query latency by 60% with Redis caching."
+          ],
+          "tech": "TypeScript, React, FastAPI, Redis, PostgreSQL"
+        }
+      ]
+    }
+  ],
+  "education": [
+    { "degree": "B.Tech Computer Science", "school": "IIT Delhi", "year": "2021" }
+  ]
+}</code></pre>
+    <p style="font-size:12px;color:#666;margin-bottom:4px;"><b>Tips:</b></p>
+    <ul style="font-size:12px;color:#555;margin-top:0;padding-left:20px;">
+      <li>All fields are optional — leave arrays empty (<code>[]</code>) or strings empty (<code>""</code>) if you don't need them.</li>
+      <li><code>bullets</code> is an array of strings, one bullet per entry.</li>
+      <li>A job's <code>projects</code> array can hold one or many projects.</li>
+      <li>To skip the Projects sub-structure for a job, put the achievements directly into a single project with an empty <code>name</code> and <code>tagline</code> — only its bullets will render under the job.</li>
+      <li>Import accepts both <b>full export format</b> (<code>{"type":"resume_builder_single_resume","resume":{...}}</code>) and <b>bare data</b> shown above.</li>
+    </ul>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px;">
+      <button class="mini-btn" onclick="closeSchemaHelp()">Close</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<!-- Libraries via CDN -->
+<script src="https://unpkg.com/docx@8.5.0/build/index.umd.js"></script>
+
+<script>
+// ======================================================================
+// STATE
+// ======================================================================
+let state = {
+  resumeName: '',
+  fullName: '',
+  tagline: '',
+  location: '',
+  phone: '',
+  email: '',
+  linkedin: '',
+  portfolio: '',
+  github: '',
+  summary: '',
+  skills: [],       // [{category, items}]
+  experience: [],   // [{title, company, location, dates, projects: [{name, tagline, bullets: [], tech}]}]
+  education: []     // [{degree, school, year}]
+};
+
+let currentResumeId = null;  // id of currently-loaded resume from history (null = new)
+
+// ======================================================================
+// STORAGE (localStorage)
+// ======================================================================
+const STORAGE_KEY = 'resume_builder_history_v1';
+
+function loadHistory() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); }
+  catch { return []; }
+}
+function saveHistory(history) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(history));
+}
+
+// ======================================================================
+// TOAST
+// ======================================================================
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// ======================================================================
+// TABS
+// ======================================================================
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    const name = tab.dataset.tab;
+    document.getElementById('formPane').style.display = name === 'form' ? '' : 'none';
+    document.getElementById('historyPane').style.display = name === 'history' ? '' : 'none';
+    if (name === 'history') renderHistory();
+  });
+});
+
+// ======================================================================
+// FORM RENDERING
+// ======================================================================
+
+function renderSkills() {
+  const container = document.getElementById('skillsList');
+  container.innerHTML = '';
+  state.skills.forEach((s, i) => {
+    const div = document.createElement('div');
+    div.className = 'nested';
+    div.innerHTML = `
+      <h4>Skill ${i+1} <button class="mini-btn danger" onclick="removeSkill(${i})">Remove</button></h4>
+      <div class="form-group"><label>Category</label>
+        <input type="text" value="${escapeAttr(s.category)}" oninput="state.skills[${i}].category=this.value;updatePreview()"></div>
+      <div class="form-group"><label>Items (comma-separated)</label>
+        <input type="text" value="${escapeAttr(s.items)}" oninput="state.skills[${i}].items=this.value;updatePreview()"></div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function renderExperience() {
+  const container = document.getElementById('experienceList');
+  container.innerHTML = '';
+  state.experience.forEach((job, j) => {
+    const jobDiv = document.createElement('div');
+    jobDiv.className = 'nested';
+    let projectsHtml = '';
+    job.projects.forEach((p, k) => {
+      projectsHtml += `
+        <div class="nested" style="background:#f7f7fb;">
+          <h4>Project ${k+1} <button class="mini-btn danger" onclick="removeProject(${j},${k})">Remove</button></h4>
+          <div class="row">
+            <div><label>Name</label>
+              <input type="text" value="${escapeAttr(p.name)}" oninput="state.experience[${j}].projects[${k}].name=this.value;updatePreview()"></div>
+            <div><label>Tagline / One-liner</label>
+              <input type="text" value="${escapeAttr(p.tagline)}" oninput="state.experience[${j}].projects[${k}].tagline=this.value;updatePreview()"></div>
+          </div>
+          <div class="form-group"><label>Bullets (one per line)</label>
+            <textarea rows="4" oninput="state.experience[${j}].projects[${k}].bullets=this.value.split('\\n').filter(x=>x.trim());updatePreview()">${escapeAttr(p.bullets.join('\n'))}</textarea></div>
+          <div class="form-group"><label>Tech Stack</label>
+            <input type="text" value="${escapeAttr(p.tech)}" oninput="state.experience[${j}].projects[${k}].tech=this.value;updatePreview()"></div>
+        </div>`;
+    });
+    jobDiv.innerHTML = `
+      <h4>Job ${j+1} <button class="mini-btn danger" onclick="removeExperience(${j})">Remove</button></h4>
+      <div class="row">
+        <div><label>Job Title</label>
+          <input type="text" value="${escapeAttr(job.title)}" oninput="state.experience[${j}].title=this.value;updatePreview()"></div>
+        <div><label>Dates</label>
+          <input type="text" placeholder="Jan 2023 – Present" value="${escapeAttr(job.dates)}" oninput="state.experience[${j}].dates=this.value;updatePreview()"></div>
+      </div>
+      <div class="row">
+        <div><label>Company</label>
+          <input type="text" value="${escapeAttr(job.company)}" oninput="state.experience[${j}].company=this.value;updatePreview()"></div>
+        <div><label>Location</label>
+          <input type="text" value="${escapeAttr(job.location)}" oninput="state.experience[${j}].location=this.value;updatePreview()"></div>
+      </div>
+      <div id="projects-of-${j}">${projectsHtml}</div>
+      <button class="add-btn" onclick="addProject(${j})">+ Add Project</button>
+    `;
+    container.appendChild(jobDiv);
+  });
+}
+
+function renderEducation() {
+  const container = document.getElementById('educationList');
+  container.innerHTML = '';
+  state.education.forEach((e, i) => {
+    const div = document.createElement('div');
+    div.className = 'nested';
+    div.innerHTML = `
+      <h4>Degree ${i+1} <button class="mini-btn danger" onclick="removeEducation(${i})">Remove</button></h4>
+      <div class="form-group"><label>Degree</label>
+        <input type="text" value="${escapeAttr(e.degree)}" oninput="state.education[${i}].degree=this.value;updatePreview()"></div>
+      <div class="row">
+        <div><label>School</label>
+          <input type="text" value="${escapeAttr(e.school)}" oninput="state.education[${i}].school=this.value;updatePreview()"></div>
+        <div><label>Year</label>
+          <input type="text" value="${escapeAttr(e.year)}" oninput="state.education[${i}].year=this.value;updatePreview()"></div>
+      </div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function escapeAttr(s) {
+  return (s || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function escapeHtml(s) { return escapeAttr(s); }
+
+// ======================================================================
+// ADD / REMOVE HANDLERS
+// ======================================================================
+function addSkill() { state.skills.push({category:'', items:''}); renderSkills(); updatePreview(); }
+function removeSkill(i) { state.skills.splice(i,1); renderSkills(); updatePreview(); }
+function addExperience() {
+  state.experience.push({title:'', company:'', location:'', dates:'', projects:[]});
+  renderExperience(); updatePreview();
+}
+function removeExperience(i) { state.experience.splice(i,1); renderExperience(); updatePreview(); }
+function addProject(j) {
+  state.experience[j].projects.push({name:'', tagline:'', bullets:[], tech:''});
+  renderExperience(); updatePreview();
+}
+function removeProject(j,k) { state.experience[j].projects.splice(k,1); renderExperience(); updatePreview(); }
+function addEducation() {
+  state.education.push({degree:'', school:'', year:''});
+  renderEducation(); updatePreview();
+}
+function removeEducation(i) { state.education.splice(i,1); renderEducation(); updatePreview(); }
+
+// ======================================================================
+// BIND TOP-LEVEL FIELDS
+// ======================================================================
+['resumeName','fullName','tagline','location','phone','email','linkedin','portfolio','github','summary'].forEach(id => {
+  const el = document.getElementById(id);
+  el.addEventListener('input', () => {
+    state[id] = el.value;
+    updatePreview();
+  });
+});
+
+// ======================================================================
+// POPULATE FORM FROM STATE
+// ======================================================================
+function populateForm() {
+  document.getElementById('resumeName').value = state.resumeName || '';
+  document.getElementById('fullName').value = state.fullName || '';
+  document.getElementById('tagline').value = state.tagline || '';
+  document.getElementById('location').value = state.location || '';
+  document.getElementById('phone').value = state.phone || '';
+  document.getElementById('email').value = state.email || '';
+  document.getElementById('linkedin').value = state.linkedin || '';
+  document.getElementById('portfolio').value = state.portfolio || '';
+  document.getElementById('github').value = state.github || '';
+  document.getElementById('summary').value = state.summary || '';
+  renderSkills();
+  renderExperience();
+  renderEducation();
+  updatePreview();
+}
+
+// ======================================================================
+// LIVE PREVIEW
+// ======================================================================
+function updatePreview() {
+  const el = document.getElementById('preview');
+  const parts = [];
+
+  // Header
+  if (state.fullName) parts.push(`<div class="r-name">${escapeHtml(state.fullName.toUpperCase())}</div>`);
+  if (state.tagline) parts.push(`<div class="r-tagline">${escapeHtml(state.tagline)}</div>`);
+
+  const contacts = [];
+  if (state.location) contacts.push(escapeHtml(state.location));
+  if (state.phone) contacts.push(escapeHtml(state.phone));
+  if (state.email) contacts.push(`<a href="mailto:${escapeAttr(state.email)}">${escapeHtml(state.email)}</a>`);
+  if (state.linkedin) contacts.push(`<a href="${escapeAttr(urlize(state.linkedin))}">LinkedIn</a>`);
+  if (state.portfolio) contacts.push(`<a href="${escapeAttr(urlize(state.portfolio))}">Portfolio</a>`);
+  if (state.github) contacts.push(`<a href="${escapeAttr(urlize(state.github))}">GitHub</a>`);
+  if (contacts.length) parts.push(`<div class="r-contact">${contacts.join('<span class="sep">|</span>')}</div>`);
+
+  if (state.summary) {
+    parts.push(`<div class="r-heading">Professional Summary</div>`);
+    parts.push(`<div class="r-summary">${escapeHtml(state.summary)}</div>`);
+  }
+
+  if (state.skills.length) {
+    parts.push(`<div class="r-heading">Technical Skills</div>`);
+    state.skills.forEach(s => {
+      if (s.category || s.items)
+        parts.push(`<div class="r-skill-row"><b>${escapeHtml(s.category)}:</b> ${escapeHtml(s.items)}</div>`);
+    });
+  }
+
+  if (state.experience.length) {
+    parts.push(`<div class="r-heading">Professional Experience</div>`);
+    state.experience.forEach(job => {
+      parts.push(`<div class="r-job-title"><span>${escapeHtml(job.title)}</span><span style="font-weight:normal;color:#444;">${escapeHtml(job.dates)}</span></div>`);
+      parts.push(`<div class="r-job-company">${escapeHtml(job.company)}${job.location?' — '+escapeHtml(job.location):''}</div>`);
+      job.projects.forEach(p => {
+        if (p.name || p.tagline)
+          parts.push(`<div class="r-project-head"><b>${escapeHtml(p.name)}</b>${p.tagline?' <span>— '+escapeHtml(p.tagline)+'</span>':''}</div>`);
+        if (p.bullets.length) {
+          parts.push('<ul class="r-bullets">');
+          p.bullets.forEach(b => parts.push(`<li>${escapeHtml(b)}</li>`));
+          parts.push('</ul>');
+        }
+        if (p.tech) parts.push(`<div class="r-tech"><b>Tech:</b> ${escapeHtml(p.tech)}</div>`);
+      });
+    });
+  }
+
+  if (state.education.length) {
+    parts.push(`<div class="r-heading">Education</div>`);
+    state.education.forEach(e => {
+      parts.push(`<div class="r-edu-row"><span>${escapeHtml(e.degree)}</span><span style="font-weight:normal;color:#444;">${e.year?'Graduated: '+escapeHtml(e.year):''}</span></div>`);
+      if (e.school) parts.push(`<div class="r-edu-school">${escapeHtml(e.school)}</div>`);
+    });
+  }
+
+  el.innerHTML = parts.join('');
+}
+
+function urlize(u) {
+  if (!u) return '';
+  if (/^https?:\/\//.test(u)) return u;
+  return 'https://' + u;
+}
+
+// ======================================================================
+// DOCX EXPORT (mirrors our Node.js build script)
+// ======================================================================
+async function exportDocx() {
+  const docx = window.docx;
+  const { Document, Packer, Paragraph, TextRun, AlignmentType, LevelFormat, BorderStyle,
+          TabStopType, TabStopPosition, ExternalHyperlink } = docx;
+  const FONT = 'Calibri';
+
+  // Helpers (mirror Node build script)
+  const sectionHeading = (text) => new Paragraph({
+    spacing: { before: 160, after: 60 },
+    border: { bottom: { color: '000000', space: 2, style: BorderStyle.SINGLE, size: 6 } },
+    children: [new TextRun({ text: text.toUpperCase(), bold: true, size: 23, font: FONT, characterSpacing: 20 })]
+  });
+  const nameHeader = (t) => new Paragraph({
+    alignment: AlignmentType.CENTER, spacing: { after: 40 },
+    children: [new TextRun({ text: t, bold: true, size: 40, font: FONT })]
+  });
+  const roleTagline = (t) => new Paragraph({
+    alignment: AlignmentType.CENTER, spacing: { after: 40 },
+    children: [new TextRun({ text: t, size: 22, font: FONT, color: '444444' })]
+  });
+  const contactLine = (parts) => {
+    const kids = [];
+    parts.forEach((p, i) => {
+      if (i > 0) kids.push(new TextRun({ text: '  |  ', size: 20, font: FONT, color: '777777' }));
+      if (p.url) {
+        kids.push(new ExternalHyperlink({ link: p.url,
+          children: [new TextRun({ text: p.text, size: 20, font: FONT, color: '0563C1', underline: {} })] }));
+      } else {
+        kids.push(new TextRun({ text: p.text, size: 20, font: FONT }));
+      }
+    });
+    return new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 40 }, children: kids });
+  };
+  const body = (text) => new Paragraph({
+    spacing: { after: 60, line: 264 },
+    children: [new TextRun({ text, size: 21, font: FONT })]
+  });
+  const jobHeader = ({ title, company, location, dates }) => ([
+    new Paragraph({
+      spacing: { before: 120, after: 0 },
+      tabStops: [{ type: TabStopType.RIGHT, position: TabStopPosition.MAX }],
+      children: [
+        new TextRun({ text: title, bold: true, size: 22, font: FONT }),
+        new TextRun({ text: '\t', size: 22, font: FONT }),
+        new TextRun({ text: dates, size: 21, font: FONT, color: '444444' })
+      ]
+    }),
+    new Paragraph({
+      spacing: { after: 40 },
+      children: [
+        new TextRun({ text: company, size: 21, font: FONT, italics: true }),
+        location ? new TextRun({ text: ' — ' + location, size: 21, font: FONT, italics: true, color: '555555' }) : new TextRun({ text: '' })
+      ]
+    })
+  ]);
+  const projectHead = (name, tagline) => new Paragraph({
+    spacing: { before: 60, after: 10 },
+    children: [
+      new TextRun({ text: name + ' ', bold: true, size: 21, font: FONT }),
+      tagline ? new TextRun({ text: '— ' + tagline, size: 21, font: FONT, color: '444444' }) : new TextRun({ text: '' })
+    ]
+  });
+  const bullet = (text) => new Paragraph({
+    numbering: { reference: 'bullets', level: 0 },
+    spacing: { after: 0, line: 264 },
+    children: [new TextRun({ text, size: 21, font: FONT })]
+  });
+  const techStack = (text) => new Paragraph({
+    spacing: { after: 40, line: 260 },
+    indent: { left: 360 },
+    children: [
+      new TextRun({ text: 'Tech: ', bold: true, size: 20, font: FONT, color: '555555' }),
+      new TextRun({ text, size: 20, font: FONT, color: '555555', italics: true })
+    ]
+  });
+  const skillRow = (category, items) => new Paragraph({
+    spacing: { after: 0, line: 260 },
+    children: [
+      new TextRun({ text: category + ': ', bold: true, size: 21, font: FONT }),
+      new TextRun({ text: items, size: 21, font: FONT })
+    ]
+  });
+
+  // Build children array
+  const children = [];
+  if (state.fullName) children.push(nameHeader(state.fullName.toUpperCase()));
+  if (state.tagline) children.push(roleTagline(state.tagline));
+
+  const contactParts = [];
+  if (state.location) contactParts.push({ text: state.location });
+  if (state.phone) contactParts.push({ text: state.phone });
+  if (state.email) contactParts.push({ text: state.email, url: 'mailto:' + state.email });
+  if (state.linkedin) contactParts.push({ text: 'LinkedIn', url: urlize(state.linkedin) });
+  if (state.portfolio) contactParts.push({ text: 'Portfolio', url: urlize(state.portfolio) });
+  if (state.github) contactParts.push({ text: 'GitHub', url: urlize(state.github) });
+  if (contactParts.length) children.push(contactLine(contactParts));
+
+  if (state.summary) {
+    children.push(sectionHeading('Professional Summary'));
+    children.push(body(state.summary));
+  }
+
+  if (state.skills.length) {
+    children.push(sectionHeading('Technical Skills'));
+    state.skills.forEach(s => {
+      if (s.category || s.items) children.push(skillRow(s.category, s.items));
+    });
+  }
+
+  if (state.experience.length) {
+    children.push(sectionHeading('Professional Experience'));
+    state.experience.forEach(job => {
+      children.push(...jobHeader(job));
+      job.projects.forEach(p => {
+        if (p.name || p.tagline) children.push(projectHead(p.name, p.tagline));
+        p.bullets.forEach(b => { if (b.trim()) children.push(bullet(b)); });
+        if (p.tech) children.push(techStack(p.tech));
+      });
+    });
+  }
+
+  if (state.education.length) {
+    children.push(sectionHeading('Education'));
+    state.education.forEach(e => {
+      children.push(new Paragraph({
+        spacing: { before: 60, after: 10 },
+        tabStops: [{ type: TabStopType.RIGHT, position: TabStopPosition.MAX }],
+        children: [
+          new TextRun({ text: e.degree, bold: true, size: 22, font: FONT }),
+          new TextRun({ text: '\t', size: 22, font: FONT }),
+          new TextRun({ text: e.year ? 'Graduated: ' + e.year : '', size: 21, font: FONT, color: '444444' })
+        ]
+      }));
+      if (e.school) children.push(new Paragraph({
+        spacing: { after: 60 },
+        children: [new TextRun({ text: e.school, size: 21, font: FONT, italics: true, color: '555555' })]
+      }));
+    });
+  }
+
+  const doc = new Document({
+    creator: state.fullName || 'Resume Builder',
+    title: (state.fullName || 'Resume') + ' — Resume',
+    styles: { default: { document: { run: { font: FONT, size: 21 } } } },
+    numbering: {
+      config: [{
+        reference: 'bullets',
+        levels: [{
+          level: 0, format: LevelFormat.BULLET, text: '•', alignment: AlignmentType.LEFT,
+          style: { paragraph: { indent: { left: 360, hanging: 220 } } }
+        }]
+      }]
+    },
+    sections: [{
+      properties: {
+        page: { size: { width: 12240, height: 15840 }, margin: { top: 720, right: 1008, bottom: 720, left: 1008 } }
+      },
+      children
+    }]
+  });
+
+  const blob = await Packer.toBlob(doc);
+  const fname = (state.fullName || 'Resume').replace(/\s+/g,'_') + '_Resume.docx';
+  downloadBlob(blob, fname);
+  toast('DOCX downloaded');
+}
+
+function downloadBlob(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename; a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ======================================================================
+// PDF EXPORT — use browser print dialog
+// ======================================================================
+function exportPdf() {
+  toast('Opening print dialog — choose "Save as PDF"');
+  setTimeout(() => window.print(), 300);
+}
+
+// ======================================================================
+// SAVE / LOAD / HISTORY
+// ======================================================================
+function saveResume() {
+  if (!state.resumeName.trim()) {
+    if (!state.fullName.trim()) {
+      toast('Add a resume name or your name before saving');
+      return;
+    }
+    state.resumeName = state.fullName + ' — ' + new Date().toLocaleDateString();
+    document.getElementById('resumeName').value = state.resumeName;
+  }
+  const history = loadHistory();
+  const payload = {
+    id: currentResumeId || 'r_' + Date.now(),
+    savedAt: Date.now(),
+    name: state.resumeName,
+    data: JSON.parse(JSON.stringify(state))
+  };
+  const existingIdx = history.findIndex(h => h.id === payload.id);
+  if (existingIdx >= 0) history[existingIdx] = payload;
+  else history.unshift(payload);
+  saveHistory(history);
+  currentResumeId = payload.id;
+  toast(existingIdx >= 0 ? 'Resume updated' : 'Resume saved to history');
+}
+
+function newResume() {
+  if (!confirm('Start a new resume? Unsaved changes will be lost.')) return;
+  currentResumeId = null;
+  state = {
+    resumeName:'', fullName:'', tagline:'', location:'', phone:'', email:'',
+    linkedin:'', portfolio:'', github:'', summary:'',
+    skills:[], experience:[], education:[]
+  };
+  populateForm();
+  toast('New resume started');
+}
+
+function renderHistory() {
+  const container = document.getElementById('historyList');
+  const empty = document.getElementById('historyEmpty');
+  const history = loadHistory();
+  container.innerHTML = '';
+  if (!history.length) { empty.style.display = 'block'; return; }
+  empty.style.display = 'none';
+  history.forEach(h => {
+    const div = document.createElement('div');
+    div.className = 'history-item';
+    const dateStr = new Date(h.savedAt).toLocaleString();
+    div.innerHTML = `
+      <div class="history-info">
+        <div class="name">${escapeHtml(h.name)}</div>
+        <div class="date">${dateStr}</div>
+      </div>
+      <div class="history-actions">
+        <button class="mini-btn" onclick="loadResume('${h.id}')">Load</button>
+        <button class="mini-btn" onclick="exportSingleFromHistory('${h.id}')">Export</button>
+        <button class="mini-btn danger" onclick="confirmDelete('${h.id}','${escapeAttr(h.name)}')">Delete</button>
+      </div>
+    `;
+    container.appendChild(div);
+  });
+}
+
+function loadResume(id) {
+  const history = loadHistory();
+  const found = history.find(h => h.id === id);
+  if (!found) return;
+  state = JSON.parse(JSON.stringify(found.data));
+  currentResumeId = id;
+  populateForm();
+  // switch to form tab
+  document.querySelector('[data-tab="form"]').click();
+  toast('Loaded: ' + found.name);
+}
+
+let pendingDeleteId = null;
+function confirmDelete(id, name) {
+  pendingDeleteId = id;
+  document.getElementById('confirmTitle').textContent = 'Delete Resume?';
+  document.getElementById('confirmMessage').textContent = `"${name}" will be permanently deleted.`;
+  document.getElementById('confirmOkBtn').onclick = () => {
+    const history = loadHistory().filter(h => h.id !== pendingDeleteId);
+    saveHistory(history);
+    if (currentResumeId === pendingDeleteId) currentResumeId = null;
+    closeConfirm();
+    renderHistory();
+    toast('Deleted');
+  };
+  document.getElementById('confirmModal').classList.add('active');
+}
+function closeConfirm() {
+  document.getElementById('confirmModal').classList.remove('active');
+  pendingDeleteId = null;
+}
+
+// ======================================================================
+// BACKUP / RESTORE — portable history as JSON
+// ======================================================================
+function exportBackup() {
+  const history = loadHistory();
+  if (!history.length) { toast('No resumes to back up'); return; }
+  const payload = {
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    app: 'resume_builder',
+    resumes: history
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const stamp = new Date().toISOString().slice(0,10);
+  downloadBlob(blob, `resume_builder_backup_${stamp}.json`);
+  toast(`Backup downloaded (${history.length} resume${history.length===1?'':'s'})`);
+}
+
+function importBackup(event) {
+  const file = event.target.files && event.target.files[0];
+  event.target.value = ''; // reset so same file can be picked again
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    let parsed;
+    try { parsed = JSON.parse(e.target.result); }
+    catch { toast('Invalid backup file'); return; }
+
+    if (!parsed || !Array.isArray(parsed.resumes)) {
+      toast('Not a valid resume backup');
+      return;
+    }
+
+    const existing = loadHistory();
+    const choice = prompt(
+      `Backup contains ${parsed.resumes.length} resume(s). You have ${existing.length} in history.\n\n` +
+      `Type "merge" to add backup resumes to your current history (skips duplicates by id).\n` +
+      `Type "replace" to wipe current history and use backup only.\n` +
+      `Press Cancel to abort.`,
+      'merge'
+    );
+
+    if (choice === null) return;
+    const mode = choice.trim().toLowerCase();
+
+    let next;
+    if (mode === 'replace') {
+      next = parsed.resumes;
+    } else if (mode === 'merge') {
+      const byId = new Map(existing.map(h => [h.id, h]));
+      let added = 0;
+      parsed.resumes.forEach(r => {
+        if (!r.id) r.id = 'r_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
+        if (!byId.has(r.id)) { byId.set(r.id, r); added++; }
+      });
+      next = Array.from(byId.values()).sort((a,b) => (b.savedAt||0) - (a.savedAt||0));
+      toast(`Merged — added ${added} new resume${added===1?'':'s'}`);
+    } else {
+      toast('Import cancelled');
+      return;
+    }
+
+    // Validate each item has minimum shape
+    next = next.filter(r => r && r.data && typeof r.data === 'object');
+    saveHistory(next);
+    renderHistory();
+    if (mode === 'replace') {
+      toast(`Replaced — ${next.length} resume${next.length===1?'':'s'} loaded`);
+      document.querySelector('[data-tab="history"]').click();
+    }
+  };
+  reader.readAsText(file);
+}
+
+// ======================================================================
+// SINGLE RESUME EXPORT / IMPORT
+// ======================================================================
+
+function buildSingleResumePayload(resumeRecord) {
+  return {
+    type: 'resume_builder_single_resume',
+    version: 1,
+    exportedAt: new Date().toISOString(),
+    resume: resumeRecord
+  };
+}
+
+function slugFor(s) {
+  return (s || 'resume').trim().replace(/[^a-zA-Z0-9_-]+/g, '_').replace(/^_+|_+$/g, '').slice(0, 60) || 'resume';
+}
+
+function exportCurrentResume() {
+  if (!state.fullName && !state.resumeName) {
+    toast('Add a name or resume title before exporting');
+    return;
+  }
+  const record = {
+    id: currentResumeId || 'r_' + Date.now(),
+    savedAt: Date.now(),
+    name: state.resumeName || state.fullName,
+    data: JSON.parse(JSON.stringify(state))
+  };
+  const payload = buildSingleResumePayload(record);
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  downloadBlob(blob, `${slugFor(record.name)}.json`);
+  toast('Resume JSON downloaded');
+}
+
+function exportSingleFromHistory(id) {
+  const history = loadHistory();
+  const found = history.find(h => h.id === id);
+  if (!found) { toast('Resume not found'); return; }
+  const payload = buildSingleResumePayload(found);
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  downloadBlob(blob, `${slugFor(found.name)}.json`);
+  toast('Resume JSON downloaded');
+}
+
+function importSingle(event) {
+  const file = event.target.files && event.target.files[0];
+  event.target.value = '';
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    let parsed;
+    try { parsed = JSON.parse(e.target.result); }
+    catch { toast('Invalid JSON file'); return; }
+
+    let record = null;
+    if (parsed && parsed.type === 'resume_builder_single_resume' && parsed.resume && parsed.resume.data) {
+      record = parsed.resume;
+    } else if (parsed && parsed.data && typeof parsed.data === 'object') {
+      record = parsed;
+    } else if (parsed && typeof parsed === 'object' && ('fullName' in parsed || 'experience' in parsed || 'skills' in parsed)) {
+      record = {
+        id: 'r_' + Date.now(),
+        savedAt: Date.now(),
+        name: parsed.resumeName || parsed.fullName || 'Imported Resume',
+        data: parsed
+      };
+    }
+
+    if (!record || !record.data) {
+      toast('Not a valid single-resume JSON');
+      return;
+    }
+
+    record.data = normalizeResumeData(record.data);
+    if (!record.id) record.id = 'r_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
+    if (!record.savedAt) record.savedAt = Date.now();
+    if (!record.name) record.name = record.data.resumeName || record.data.fullName || 'Imported Resume';
+
+    const history = loadHistory();
+    const existing = history.findIndex(h => h.id === record.id);
+    let action;
+    if (existing >= 0) {
+      action = prompt(
+        `A resume with this id already exists ("${history[existing].name}").\n\n` +
+        `Type "replace" to overwrite,\n` +
+        `Type "new" to import as a brand new entry,\n` +
+        `Type "load" to open in editor without saving.\n` +
+        `Cancel to abort.`,
+        'new'
+      );
+    } else {
+      action = prompt(
+        `Import "${record.name}"?\n\n` +
+        `Type "save" to add to history and open,\n` +
+        `Type "load" to open in editor without saving.\n` +
+        `Cancel to abort.`,
+        'save'
+      );
+    }
+    if (action === null) return;
+    const mode = action.trim().toLowerCase();
+
+    if (mode === 'replace' && existing >= 0) {
+      history[existing] = record;
+      saveHistory(history);
+    } else if (mode === 'new' || mode === 'save') {
+      if (mode === 'new') record.id = 'r_' + Date.now() + '_' + Math.random().toString(36).slice(2,6);
+      history.unshift(record);
+      saveHistory(history);
+    } else if (mode !== 'load') {
+      toast('Import cancelled');
+      return;
+    }
+
+    state = JSON.parse(JSON.stringify(record.data));
+    currentResumeId = (mode === 'load') ? null : record.id;
+    populateForm();
+    document.querySelector('[data-tab="form"]').click();
+    renderHistory();
+    toast(mode === 'load' ? 'Loaded into editor (not saved)' : 'Imported: ' + record.name);
+  };
+  reader.readAsText(file);
+}
+
+function normalizeResumeData(d) {
+  return {
+    resumeName: d.resumeName || '',
+    fullName: d.fullName || '',
+    tagline: d.tagline || '',
+    location: d.location || '',
+    phone: d.phone || '',
+    email: d.email || '',
+    linkedin: d.linkedin || '',
+    portfolio: d.portfolio || '',
+    github: d.github || '',
+    summary: d.summary || '',
+    skills: Array.isArray(d.skills) ? d.skills.map(s => ({
+      category: (s && s.category) || '',
+      items: (s && s.items) || ''
+    })) : [],
+    experience: Array.isArray(d.experience) ? d.experience.map(j => ({
+      title: (j && j.title) || '',
+      company: (j && j.company) || '',
+      location: (j && j.location) || '',
+      dates: (j && j.dates) || '',
+      projects: Array.isArray(j && j.projects) ? j.projects.map(p => ({
+        name: (p && p.name) || '',
+        tagline: (p && p.tagline) || '',
+        bullets: Array.isArray(p && p.bullets) ? p.bullets.filter(b => typeof b === 'string') : [],
+        tech: (p && p.tech) || ''
+      })) : []
+    })) : [],
+    education: Array.isArray(d.education) ? d.education.map(e => ({
+      degree: (e && e.degree) || '',
+      school: (e && e.school) || '',
+      year: (e && e.year) || ''
+    })) : []
+  };
+}
+
+function showSchemaHelp() {
+  document.getElementById('schemaModal').classList.add('active');
+}
+function closeSchemaHelp() {
+  document.getElementById('schemaModal').classList.remove('active');
+}
+function seedInitial() {
+  state = {
+    resumeName: 'Swaraj Kumar — Senior Flutter Developer',
+    fullName: 'Swaraj Kumar',
+    tagline: 'Senior Flutter Developer  |  5+ Years Experience',
+    location: 'Kolkata, India',
+    phone: '+91 8709830719',
+    email: 'swaraj344@gmail.com',
+    linkedin: 'linkedin.com/in/swaraj-kumar-b63376171',
+    portfolio: 'swarah344.github.io',
+    github: 'github.com/swaraj344',
+    summary: 'Senior Flutter Developer with 5+ years of experience shipping scalable, production-grade mobile applications across social media, fintech, eCommerce, edtech, and content platforms. Deep expertise in clean architecture (BLoC + DDD), real-time communication (WebSockets, WebRTC), offline-first systems (SQLite + Drift), and complex integrations including OCR, face recognition, CallKit/VOIP, and third-party authentication (Singpass). Proven track record of delivering 9+ Flutter apps from concept to production, architecting maintainable codebases, and integrating the full Firebase ecosystem at scale.',
+    skills: [
+      { category: 'Languages', items: 'Dart, JavaScript (Basics), SQL (Basics)' },
+      { category: 'Frameworks & Core', items: 'Flutter, Dart SDK, REST APIs, WebSockets' },
+      { category: 'Architecture', items: 'BLoC, Domain-Driven Design (DDD), GetX, Clean Architecture, MVVM' },
+      { category: 'State Management', items: 'BLoC, GetX, Butter' },
+      { category: 'Real-time & Media', items: 'WebRTC, WebSockets, iOS CallKit, VOIP Push Notifications, Audio/Video Streaming' },
+      { category: 'Backend & Cloud', items: 'Firebase (Auth, Firestore, Cloud Functions, Crashlytics, Analytics), REST APIs, WordPress eCommerce API' },
+      { category: 'Database & Storage', items: 'SQLite, Drift, Offline-first Sync Architecture' },
+      { category: 'AI & Device Features', items: 'OCR, QR Scanning, Face Recognition, Card Scanning, AI-based Categorization' },
+      { category: 'Auth & Identity', items: 'Singpass, Firebase Auth, OAuth, JWT' },
+      { category: 'Tools & Libraries', items: 'Dio, Freezed, build_runner, auto_route, Push Notifications' },
+      { category: 'Platforms', items: 'iOS, Android, App Store, Google Play' }
+    ],
+    experience: [
+      {
+        title: 'Software Developer',
+        company: 'Nextzen Minds',
+        location: 'India',
+        dates: 'Jan 2026 – Present',
+        projects: [
+          {
+            name: 'WITI',
+            tagline: 'Postcard Generation & Delivery App',
+            bullets: [
+              'Built an in-app postcard design editor supporting both custom-designed and template-based postcards with real-time preview.',
+              'Implemented end-to-end real-time order tracking for printed postcard delivery.',
+              'Architected the app using BLoC + Domain-Driven Design (DDD) for long-term scalability and testability.'
+            ],
+            tech: 'Flutter, Dart, BLoC, DDD, auto_route, Freezed, build_runner, Dio, Firebase (Push Notifications, Crashlytics, Analytics)'
+          },
+          {
+            name: 'My Catholic',
+            tagline: 'Christian Content & Prayer Platform',
+            bullets: [
+              'Developed a faith-based content platform featuring daily prayers, live radio streaming, and devotional video/music playback.',
+              'Built a Netflix-style episodic series system for long-form religious video content with watch-progress tracking.',
+              'Integrated Singpass authentication for secure, government-verified user login.'
+            ],
+            tech: 'Flutter, Dart, Butter (state), Firebase, Firestore, Cloud Functions, Singpass, Freezed, build_runner, Dio, Push Notifications, Crashlytics, Analytics'
+          },
+          {
+            name: 'Smart Receipt',
+            tagline: 'AI-Powered Receipt & Expense Tracker',
+            bullets: [
+              'Developed an intelligent expense tracker that scans paper receipts via OCR and QR, plus physical cards via card-scan.',
+              'Implemented AI-based auto-categorization of spend to give users real-time insights into their financial habits.',
+              'Built the architecture around BLoC + DDD with a reactive, offline-tolerant data flow.'
+            ],
+            tech: 'Flutter, Dart, BLoC, DDD, OCR, QR Scanning, Card Scanning, AI Categorization, auto_route, Freezed, build_runner, Dio, Push Notifications, Crashlytics, Analytics'
+          }
+        ]
+      },
+      {
+        title: 'Flutter Developer',
+        company: 'CBNITS India Pvt. Ltd.',
+        location: 'Kolkata, India',
+        dates: 'May 2024 – Jan 2026',
+        projects: [
+          {
+            name: 'Connectbud',
+            tagline: 'Tutor Booking Platform for Teachers, Students & Parents',
+            bullets: [
+              'Delivered a multi-role booking platform connecting teachers, students, and parents with session scheduling workflows.',
+              'Built a real-time chat system powered by WebSockets, enabling low-latency conversations between all user roles.',
+              'Structured the codebase with BLoC + DDD and auto_route for a maintainable, feature-first architecture.'
+            ],
+            tech: 'Flutter, Dart, BLoC, DDD, WebSockets, auto_route, Freezed, build_runner, Dio, Firebase (Push Notifications, Crashlytics, Analytics)'
+          },
+          {
+            name: 'Totalher',
+            tagline: 'Female-Only Social Media App',
+            bullets: [
+              'Built a secure female-only social network with real-time messaging, audio/video calling, and community features.',
+              'Integrated WebRTC for peer-to-peer audio/video calls, with iOS CallKit and VOIP push notifications for native call UX.',
+              'Implemented a face recognition pipeline for onboarding verification to enforce the female-only policy.',
+              'Architected the app with BLoC + DDD for clean separation of real-time, auth, and feed domains.'
+            ],
+            tech: 'Flutter, Dart, BLoC, DDD, WebRTC, CallKit, VOIP, Face Recognition, auto_route, Freezed, build_runner, Dio, Push Notifications, Crashlytics, Analytics'
+          }
+        ]
+      },
+      {
+        title: 'Software Developer',
+        company: 'Saasaki Technologies Pvt. Ltd.',
+        location: 'India',
+        dates: 'Jan 2023 – Apr 2024',
+        projects: [
+          {
+            name: 'Art of Option Learning',
+            tagline: 'Stock Trading Education App',
+            bullets: [
+              'Built an educational app for traders featuring structured video courses on stocks and options.',
+              'Integrated Firebase Cloud Functions for course-delivery logic, along with Firestore for dynamic content.',
+              'Managed state with GetX for a lightweight, reactive UI layer across multiple course flows.'
+            ],
+            tech: 'Flutter, Dart, GetX, Firebase, Firestore, Cloud Functions, Freezed, build_runner, Dio, Push Notifications, Crashlytics, Analytics'
+          },
+          {
+            name: 'Reveal Inside',
+            tagline: 'Reels-Style News App with Offline-First Sync',
+            bullets: [
+              'Built a news app with vertical infinite-scrolling (reels/shorts-style), optimized for effortless news consumption.',
+              'Implemented an offline-first architecture using SQLite + Drift to pre-sync news and enable interruption-free scrolling on flaky networks.',
+              'Used GetX for reactive state management across feeds, bookmarks, and user preferences.'
+            ],
+            tech: 'Flutter, Dart, GetX, SQLite, Drift, Firebase, Firestore, Cloud Functions, Freezed, build_runner, Dio, Push Notifications, Crashlytics, Analytics'
+          }
+        ]
+      },
+      {
+        title: 'Flutter Developer',
+        company: 'Teramars Technologies Pvt. Ltd.',
+        location: 'India',
+        dates: '2022 – 2023',
+        projects: [
+          {
+            name: 'Sellet',
+            tagline: 'B2B eCommerce App for Toy Distribution',
+            bullets: [
+              'Delivered a B2B eCommerce mobile app connecting toy distributors and retailers, backed by WordPress eCommerce APIs.',
+              'Integrated the full product catalog, cart, and order flow against the WordPress backend using Dio + Freezed models.',
+              'Used GetX for state management and established a scalable code structure with build_runner-driven codegen.'
+            ],
+            tech: 'Flutter, Dart, GetX, WordPress eCommerce API, Firebase, Push Notifications, Freezed, build_runner, Dio'
+          }
+        ]
+      }
+    ],
+    education: [
+      { degree: 'Bachelor of Computer Applications (BCA)', school: 'Marwari College, Ranchi', year: '2020' }
+    ]
+  };
+  populateForm();
+}
+
+// ======================================================================
+// INIT
+// ======================================================================
+window.addEventListener('DOMContentLoaded', () => {
+  // If history has items, load the most recent one; otherwise seed with Swaraj's resume.
+  const history = loadHistory();
+  if (history.length) {
+    loadResume(history[0].id);
+  } else {
+    seedInitial();
+    // auto-save initial to history so user sees "history" feature immediately
+    saveResume();
+  }
+});
+</script>
+
+</body>
+</html>
