@@ -196,6 +196,29 @@
     pointer-events: none; z-index: 200;
   }
   #toast.show { opacity: 1; }
+
+  /* Sync status badge */
+  .sync-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px; font-size: 11px; background: #f0f0f4;
+    border-radius: 12px; cursor: pointer; margin-bottom: 10px;
+    color: #555; font-weight: 500; user-select: none;
+    transition: background 0.15s;
+  }
+  .sync-badge:hover { background: #e4e4ea; }
+  .sync-dot {
+    width: 8px; height: 8px; border-radius: 50%; background: #bbb;
+    flex-shrink: 0;
+  }
+  .sync-dot.ok { background: #10b981; }
+  .sync-dot.pending { background: #f59e0b; animation: pulse 1.2s infinite; }
+  .sync-dot.error { background: #ef4444; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+  .settings-form label { display: block; font-size: 13px; margin: 10px 0 4px 0; font-weight: 600; color: #333; }
+  .settings-form input { width: 100%; padding: 8px 10px; font-size: 13px; border: 1px solid #d4d4d8; border-radius: 5px; font-family: monospace; }
+  .settings-form .hint { font-size: 11px; color: #777; margin-top: 2px; }
+  .settings-form .warn { font-size: 12px; color: #b45309; background: #fef3c7; padding: 8px 10px; border-radius: 5px; margin-top: 10px; }
 </style>
 </head>
 <body>
@@ -205,6 +228,10 @@
   <aside class="sidebar">
     <div class="sidebar-header">
       <h1>📄 Resume Builder</h1>
+      <div id="syncBadge" class="sync-badge" onclick="openSyncSettings()" title="Click to configure cloud sync">
+        <span id="syncDot" class="sync-dot"></span>
+        <span id="syncText">☁ Sync: off</span>
+      </div>
       <div class="tabs">
         <button class="tab active" data-tab="form">Edit</button>
         <button class="tab" data-tab="history">History</button>
@@ -378,6 +405,48 @@
     </ul>
     <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:14px;">
       <button class="mini-btn" onclick="closeSchemaHelp()">Close</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="syncModal">
+  <div class="modal" style="max-width: 560px;">
+    <h2>☁ Cloud Sync Settings</h2>
+    <p style="font-size:13px;color:#555;margin-bottom:12px;">
+      Sync your resume history across devices using a private GitHub Gist. Your data is stored in your own Gist — GitHub never sees the app, and the app never sees your GitHub account beyond this one token.
+    </p>
+
+    <details style="margin-bottom:14px;font-size:13px;">
+      <summary style="cursor:pointer;font-weight:600;color:#2563eb;">First-time setup (≈ 3 minutes)</summary>
+      <ol style="padding-left:20px;margin-top:10px;color:#444;line-height:1.6;">
+        <li>Go to <a href="https://github.com/settings/tokens?type=beta" target="_blank" rel="noopener">github.com/settings/tokens</a> → <b>Generate new token</b> (fine-grained).</li>
+        <li>Name it "Resume Builder Sync". Set expiration (up to 1 year is fine).</li>
+        <li>Under <b>Account permissions</b>, find <b>Gists</b> → set to <b>Read and write</b>. Leave everything else as "No access".</li>
+        <li>Generate and copy the token (starts with <code>github_pat_</code>). Paste it below.</li>
+        <li>Go to <a href="https://gist.github.com/" target="_blank" rel="noopener">gist.github.com</a> → create a new <b>Secret</b> gist with filename <code>resume_builder.json</code> and content <code>{}</code>. Click <b>Create secret gist</b>.</li>
+        <li>Copy the Gist ID from the URL (the long string after your username). Paste it below.</li>
+        <li>Click <b>Save &amp; Test</b>. If green, you're set.</li>
+      </ol>
+    </details>
+
+    <div class="settings-form">
+      <label>GitHub Personal Access Token</label>
+      <input type="password" id="syncTokenInput" placeholder="github_pat_...">
+      <div class="hint">Stored locally in this browser. Only sent to api.github.com. Never committed to any repo.</div>
+
+      <label>Gist ID</label>
+      <input type="text" id="syncGistInput" placeholder="a1b2c3d4e5f6789...">
+      <div class="hint">The long hex ID from your secret gist's URL.</div>
+
+      <div class="warn" id="syncTestResult" style="display:none;"></div>
+    </div>
+
+    <div style="display:flex;gap:8px;justify-content:space-between;margin-top:16px;align-items:center;">
+      <button class="mini-btn danger" onclick="clearSyncConfig()" style="padding:6px 10px;">Disable Sync</button>
+      <div style="display:flex;gap:8px;">
+        <button class="mini-btn" onclick="closeSyncSettings()">Cancel</button>
+        <button class="mini-btn" onclick="saveSyncConfig()" style="background:#2563eb;color:#fff;border-color:#2563eb;padding:6px 14px;">Save &amp; Test</button>
+      </div>
     </div>
   </div>
 </div>
@@ -992,6 +1061,7 @@ function confirmDelete(id, name) {
     closeConfirm();
     renderHistory();
     toast('Deleted');
+    if (loadSyncConfig()) pushToCloud({ silent: true });
   };
   document.getElementById('confirmModal').classList.add('active');
 }
@@ -1397,16 +1467,243 @@ function seedInitial() {
 }
 
 // ======================================================================
+// CLOUD SYNC (GitHub Secret Gist)
+// ======================================================================
+const SYNC_CONFIG_KEY = 'resume_builder_sync_config_v1';
+const GIST_FILENAME = 'resume_builder.json';
+
+let syncState = {
+  status: 'off',       // 'off' | 'ok' | 'pending' | 'error'
+  lastError: '',
+  lastSyncAt: 0,
+  pushing: false,
+  pulling: false
+};
+
+function loadSyncConfig() {
+  try { return JSON.parse(localStorage.getItem(SYNC_CONFIG_KEY) || 'null'); }
+  catch { return null; }
+}
+function saveSyncConfigRaw(cfg) {
+  if (cfg) localStorage.setItem(SYNC_CONFIG_KEY, JSON.stringify(cfg));
+  else localStorage.removeItem(SYNC_CONFIG_KEY);
+}
+
+function setSyncStatus(status, msg) {
+  syncState.status = status;
+  if (msg !== undefined) syncState.lastError = msg;
+  const dot = document.getElementById('syncDot');
+  const text = document.getElementById('syncText');
+  if (!dot || !text) return;
+  dot.className = 'sync-dot' + (status === 'off' ? '' : ' ' + status);
+  const cfg = loadSyncConfig();
+  if (status === 'off' || !cfg) { text.textContent = '☁ Sync: off'; return; }
+  if (status === 'ok') {
+    const t = syncState.lastSyncAt ? new Date(syncState.lastSyncAt).toLocaleTimeString() : '';
+    text.textContent = '☁ Synced' + (t ? ' · ' + t : '');
+  } else if (status === 'pending') {
+    text.textContent = '☁ Syncing…';
+  } else if (status === 'error') {
+    text.textContent = '☁ Sync error';
+  }
+}
+
+function openSyncSettings() {
+  const cfg = loadSyncConfig();
+  document.getElementById('syncTokenInput').value = (cfg && cfg.token) || '';
+  document.getElementById('syncGistInput').value = (cfg && cfg.gistId) || '';
+  document.getElementById('syncTestResult').style.display = 'none';
+  document.getElementById('syncModal').classList.add('active');
+}
+function closeSyncSettings() {
+  document.getElementById('syncModal').classList.remove('active');
+}
+
+async function saveSyncConfig() {
+  const token = document.getElementById('syncTokenInput').value.trim();
+  const gistId = document.getElementById('syncGistInput').value.trim();
+  const resultEl = document.getElementById('syncTestResult');
+
+  if (!token || !gistId) {
+    resultEl.style.display = 'block';
+    resultEl.style.background = '#fee2e2'; resultEl.style.color = '#b91c1c';
+    resultEl.textContent = 'Both token and gist ID are required.';
+    return;
+  }
+
+  resultEl.style.display = 'block';
+  resultEl.style.background = '#fef3c7'; resultEl.style.color = '#b45309';
+  resultEl.textContent = 'Testing connection…';
+
+  try {
+    const res = await fetch(`https://api.github.com/gists/${gistId}`, {
+      headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json' }
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(`${res.status} ${res.statusText}${err.message ? ' — ' + err.message : ''}`);
+    }
+    const gist = await res.json();
+    // Success
+    saveSyncConfigRaw({ token, gistId });
+    resultEl.style.background = '#d1fae5'; resultEl.style.color = '#065f46';
+    resultEl.textContent = `✓ Connected. Gist has ${Object.keys(gist.files || {}).length} file(s).`;
+    setSyncStatus('ok', '');
+    syncState.lastSyncAt = Date.now();
+    toast('Sync enabled — pulling cloud data…');
+    setTimeout(() => { closeSyncSettings(); pullFromCloud({ silent: false }); }, 900);
+  } catch (e) {
+    resultEl.style.background = '#fee2e2'; resultEl.style.color = '#b91c1c';
+    resultEl.textContent = '✗ Failed: ' + e.message;
+  }
+}
+
+function clearSyncConfig() {
+  if (!confirm('Disable cloud sync on this device? Local history stays intact.')) return;
+  saveSyncConfigRaw(null);
+  setSyncStatus('off');
+  closeSyncSettings();
+  toast('Cloud sync disabled');
+}
+
+// Pull cloud gist and merge into local history by savedAt (newer wins)
+async function pullFromCloud({ silent = true } = {}) {
+  const cfg = loadSyncConfig();
+  if (!cfg) return;
+  if (syncState.pulling) return;
+  syncState.pulling = true;
+  setSyncStatus('pending');
+  try {
+    const res = await fetch(`https://api.github.com/gists/${cfg.gistId}`, {
+      headers: { 'Authorization': `Bearer ${cfg.token}`, 'Accept': 'application/vnd.github+json' },
+      cache: 'no-store'
+    });
+    if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+    const gist = await res.json();
+    const file = gist.files && gist.files[GIST_FILENAME];
+    let cloudHistory = [];
+    if (file && file.content) {
+      try {
+        const parsed = JSON.parse(file.content);
+        if (parsed && Array.isArray(parsed.resumes)) cloudHistory = parsed.resumes;
+      } catch {
+        // empty / malformed — treat as no cloud data yet
+      }
+    }
+
+    const local = loadHistory();
+    const merged = mergeHistories(local, cloudHistory);
+    saveHistory(merged);
+    renderHistory();
+
+    syncState.lastSyncAt = Date.now();
+    setSyncStatus('ok');
+    if (!silent) toast(`Pulled ${cloudHistory.length} cloud resume(s)`);
+
+    // If cloud had newer entries than local, update editor view if current resume changed
+    if (currentResumeId) {
+      const refreshed = merged.find(h => h.id === currentResumeId);
+      if (refreshed) {
+        // Only reload editor if cloud version is strictly newer
+        const localVersion = local.find(h => h.id === currentResumeId);
+        if (refreshed.savedAt > (localVersion?.savedAt || 0)) {
+          state = JSON.parse(JSON.stringify(refreshed.data));
+          populateForm();
+          if (!silent) toast('Editor refreshed with newer cloud version');
+        }
+      }
+    }
+  } catch (e) {
+    setSyncStatus('error', e.message);
+    if (!silent) toast('Pull failed: ' + e.message);
+  } finally {
+    syncState.pulling = false;
+  }
+}
+
+// Push entire local history to the gist
+async function pushToCloud({ silent = true } = {}) {
+  const cfg = loadSyncConfig();
+  if (!cfg) return;
+  if (syncState.pushing) return;
+  syncState.pushing = true;
+  setSyncStatus('pending');
+  try {
+    const payload = {
+      version: 1,
+      updatedAt: new Date().toISOString(),
+      app: 'resume_builder',
+      resumes: loadHistory()
+    };
+    const body = {
+      files: { [GIST_FILENAME]: { content: JSON.stringify(payload, null, 2) } }
+    };
+    const res = await fetch(`https://api.github.com/gists/${cfg.gistId}`, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${cfg.token}`,
+        'Accept': 'application/vnd.github+json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(body)
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(`${res.status}${err.message ? ' — ' + err.message : ''}`);
+    }
+    syncState.lastSyncAt = Date.now();
+    setSyncStatus('ok');
+    if (!silent) toast('Pushed to cloud');
+  } catch (e) {
+    setSyncStatus('error', e.message);
+    if (!silent) toast('Push failed: ' + e.message);
+  } finally {
+    syncState.pushing = false;
+  }
+}
+
+// Merge two history arrays by id, keeping the one with higher savedAt
+function mergeHistories(a, b) {
+  const byId = new Map();
+  [...a, ...b].forEach(r => {
+    if (!r || !r.id) return;
+    const existing = byId.get(r.id);
+    if (!existing || (r.savedAt || 0) > (existing.savedAt || 0)) {
+      byId.set(r.id, r);
+    }
+  });
+  return Array.from(byId.values()).sort((x, y) => (y.savedAt || 0) - (x.savedAt || 0));
+}
+
+// Hook into saveResume so cloud pushes happen automatically.
+// We monkey-patch the original after it's defined.
+const _origSaveResume = saveResume;
+saveResume = function() {
+  _origSaveResume.apply(this, arguments);
+  if (loadSyncConfig()) {
+    // fire and forget
+    pushToCloud({ silent: true });
+  }
+};
+
+
+// ======================================================================
 // INIT
 // ======================================================================
-window.addEventListener('DOMContentLoaded', () => {
-  // If history has items, load the most recent one; otherwise seed with Swaraj's resume.
+window.addEventListener('DOMContentLoaded', async () => {
+  const cfg = loadSyncConfig();
+  setSyncStatus(cfg ? 'ok' : 'off');
+
+  // Pull from cloud BEFORE loading local, so we always see the latest
+  if (cfg) {
+    await pullFromCloud({ silent: true });
+  }
+
   const history = loadHistory();
   if (history.length) {
     loadResume(history[0].id);
   } else {
     seedInitial();
-    // auto-save initial to history so user sees "history" feature immediately
     saveResume();
   }
 });
