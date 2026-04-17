@@ -251,6 +251,12 @@
       </fieldset>
 
       <fieldset>
+        <legend>Projects (standalone / portfolio)</legend>
+        <div id="projectsList"></div>
+        <button class="add-btn" onclick="addStandaloneProject()">+ Add Project</button>
+      </fieldset>
+
+      <fieldset>
         <legend>Education</legend>
         <div id="educationList"></div>
         <button class="add-btn" onclick="addEducation()">+ Add Degree</button>
@@ -346,6 +352,17 @@
       ]
     }
   ],
+  "projects": [
+    {
+      "name": "Weather App",
+      "tagline": "Cross-platform Flutter weather app",
+      "bullets": [
+        "Built a weather app in Flutter with real-time forecasts.",
+        "Integrated public APIs via Dio with full error handling."
+      ],
+      "tech": "Flutter, Dart, Dio, http, REST APIs"
+    }
+  ],
   "education": [
     { "degree": "B.Tech Computer Science", "school": "IIT Delhi", "year": "2021" }
   ]
@@ -355,6 +372,7 @@
       <li>All fields are optional — leave arrays empty (<code>[]</code>) or strings empty (<code>""</code>) if you don't need them.</li>
       <li><code>bullets</code> is an array of strings, one bullet per entry.</li>
       <li>A job's <code>projects</code> array can hold one or many projects.</li>
+      <li>The top-level <code>projects</code> array (outside <code>experience</code>) renders as a separate "Projects" section — useful for portfolio work, open source, or learning projects.</li>
       <li>To skip the Projects sub-structure for a job, put the achievements directly into a single project with an empty <code>name</code> and <code>tagline</code> — only its bullets will render under the job.</li>
       <li>Import accepts both <b>full export format</b> (<code>{"type":"resume_builder_single_resume","resume":{...}}</code>) and <b>bare data</b> shown above.</li>
     </ul>
@@ -386,6 +404,7 @@ let state = {
   summary: '',
   skills: [],       // [{category, items}]
   experience: [],   // [{title, company, location, dates, projects: [{name, tagline, bullets: [], tech}]}]
+  projects: [],     // [{name, tagline, bullets: [], tech}] — standalone projects not tied to a company
   education: []     // [{degree, school, year}]
 };
 
@@ -493,6 +512,30 @@ function renderExperience() {
   });
 }
 
+function renderStandaloneProjects() {
+  const container = document.getElementById('projectsList');
+  container.innerHTML = '';
+  if (!Array.isArray(state.projects)) state.projects = [];
+  state.projects.forEach((p, i) => {
+    const div = document.createElement('div');
+    div.className = 'nested';
+    div.innerHTML = `
+      <h4>Project ${i+1} <button class="mini-btn danger" onclick="removeStandaloneProject(${i})">Remove</button></h4>
+      <div class="row">
+        <div><label>Name</label>
+          <input type="text" value="${escapeAttr(p.name)}" oninput="state.projects[${i}].name=this.value;updatePreview()"></div>
+        <div><label>Tagline / One-liner</label>
+          <input type="text" value="${escapeAttr(p.tagline)}" oninput="state.projects[${i}].tagline=this.value;updatePreview()"></div>
+      </div>
+      <div class="form-group"><label>Bullets (one per line)</label>
+        <textarea rows="4" oninput="state.projects[${i}].bullets=this.value.split('\\n').filter(x=>x.trim());updatePreview()">${escapeAttr(p.bullets.join('\n'))}</textarea></div>
+      <div class="form-group"><label>Tech Stack</label>
+        <input type="text" value="${escapeAttr(p.tech)}" oninput="state.projects[${i}].tech=this.value;updatePreview()"></div>
+    `;
+    container.appendChild(div);
+  });
+}
+
 function renderEducation() {
   const container = document.getElementById('educationList');
   container.innerHTML = '';
@@ -534,6 +577,12 @@ function addProject(j) {
   renderExperience(); updatePreview();
 }
 function removeProject(j,k) { state.experience[j].projects.splice(k,1); renderExperience(); updatePreview(); }
+function addStandaloneProject() {
+  if (!Array.isArray(state.projects)) state.projects = [];
+  state.projects.push({name:'', tagline:'', bullets:[], tech:''});
+  renderStandaloneProjects(); updatePreview();
+}
+function removeStandaloneProject(i) { state.projects.splice(i,1); renderStandaloneProjects(); updatePreview(); }
 function addEducation() {
   state.education.push({degree:'', school:'', year:''});
   renderEducation(); updatePreview();
@@ -567,6 +616,7 @@ function populateForm() {
   document.getElementById('summary').value = state.summary || '';
   renderSkills();
   renderExperience();
+  renderStandaloneProjects();
   renderEducation();
   updatePreview();
 }
@@ -620,6 +670,23 @@ function updatePreview() {
         if (p.tech) parts.push(`<div class="r-tech"><b>Tech:</b> ${escapeHtml(p.tech)}</div>`);
       });
     });
+  }
+
+  if (state.projects && state.projects.length) {
+    const visible = state.projects.filter(p => p.name || p.tagline || (p.bullets && p.bullets.length) || p.tech);
+    if (visible.length) {
+      parts.push(`<div class="r-heading">Projects</div>`);
+      visible.forEach(p => {
+        if (p.name || p.tagline)
+          parts.push(`<div class="r-project-head"><b>${escapeHtml(p.name)}</b>${p.tagline?' <span>— '+escapeHtml(p.tagline)+'</span>':''}</div>`);
+        if (p.bullets && p.bullets.length) {
+          parts.push('<ul class="r-bullets">');
+          p.bullets.forEach(b => parts.push(`<li>${escapeHtml(b)}</li>`));
+          parts.push('</ul>');
+        }
+        if (p.tech) parts.push(`<div class="r-tech"><b>Tech:</b> ${escapeHtml(p.tech)}</div>`);
+      });
+    }
   }
 
   if (state.education.length) {
@@ -763,6 +830,18 @@ async function exportDocx() {
     });
   }
 
+  if (state.projects && state.projects.length) {
+    const visible = state.projects.filter(p => p.name || p.tagline || (p.bullets && p.bullets.length) || p.tech);
+    if (visible.length) {
+      children.push(sectionHeading('Projects'));
+      visible.forEach(p => {
+        if (p.name || p.tagline) children.push(projectHead(p.name, p.tagline));
+        (p.bullets || []).forEach(b => { if (b.trim()) children.push(bullet(b)); });
+        if (p.tech) children.push(techStack(p.tech));
+      });
+    }
+  }
+
   if (state.education.length) {
     children.push(sectionHeading('Education'));
     state.education.forEach(e => {
@@ -857,7 +936,7 @@ function newResume() {
   state = {
     resumeName:'', fullName:'', tagline:'', location:'', phone:'', email:'',
     linkedin:'', portfolio:'', github:'', summary:'',
-    skills:[], experience:[], education:[]
+    skills:[], experience:[], projects:[], education:[]
   };
   populateForm();
   toast('New resume started');
@@ -1149,6 +1228,12 @@ function normalizeResumeData(d) {
         tech: (p && p.tech) || ''
       })) : []
     })) : [],
+    projects: Array.isArray(d.projects) ? d.projects.map(p => ({
+      name: (p && p.name) || '',
+      tagline: (p && p.tagline) || '',
+      bullets: Array.isArray(p && p.bullets) ? p.bullets.filter(b => typeof b === 'string') : [],
+      tech: (p && p.tech) || ''
+    })) : [],
     education: Array.isArray(d.education) ? d.education.map(e => ({
       degree: (e && e.degree) || '',
       school: (e && e.school) || '',
@@ -1303,6 +1388,7 @@ function seedInitial() {
         ]
       }
     ],
+    projects: [],
     education: [
       { degree: 'Bachelor of Computer Applications (BCA)', school: 'Marwari College, Ranchi', year: '2020' }
     ]
