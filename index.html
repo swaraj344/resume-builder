@@ -4,6 +4,9 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Resume Builder — Swaraj's Template</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; }
   body {
@@ -118,35 +121,39 @@
     margin: 0 auto;
     padding: 0.5in 0.7in;
     box-shadow: 0 1px 4px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.08);
-    font-family: Calibri, "Carlito", Arial, sans-serif;
+    font-family: "Inter", "Calibri", "Segoe UI", Arial, sans-serif;
     color: #222;
     font-size: 10.5pt;
-    line-height: 1.32;
+    line-height: 1.4;
+    --accent: #1E3A5F;
+    --muted: #5c5c66;
+    --rule: #c7cdd4;
   }
-  .r-name { text-align: center; font-size: 20pt; font-weight: bold; margin-bottom: 2pt; letter-spacing: 0.5pt; }
-  .r-tagline { text-align: center; font-size: 11pt; color: #444; margin-bottom: 4pt; }
-  .r-contact { text-align: center; font-size: 10pt; margin-bottom: 10pt; }
-  .r-contact a { color: #0563C1; text-decoration: underline; }
-  .r-contact .sep { color: #888; margin: 0 6px; }
+  .r-name { text-align: center; font-size: 22pt; font-weight: 700; margin-bottom: 2pt; letter-spacing: 0.8pt; color: var(--accent); }
+  .r-tagline { text-align: center; font-size: 11pt; color: var(--muted); margin-bottom: 4pt; font-weight: 500; }
+  .r-contact { text-align: center; font-size: 9.5pt; margin-bottom: 10pt; color: #444; }
+  .r-contact a { color: var(--accent); text-decoration: none; border-bottom: 0.5pt solid var(--accent); }
+  .r-contact .sep { color: #a8a8b0; margin: 0 6px; }
   .r-heading {
-    font-size: 11.5pt; font-weight: bold; text-transform: uppercase;
-    letter-spacing: 1pt; border-bottom: 0.5pt solid #000;
-    padding-bottom: 2pt; margin-top: 8pt; margin-bottom: 4pt;
+    font-size: 11pt; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1.4pt; color: var(--accent);
+    border-bottom: 1pt solid var(--accent);
+    padding-bottom: 2pt; margin-top: 10pt; margin-bottom: 5pt;
   }
-  .r-summary { margin-bottom: 4pt; text-align: justify; }
+  .r-summary { margin-bottom: 4pt; text-align: justify; color: #2a2a2a; }
   .r-skill-row { margin-bottom: 0; }
-  .r-skill-row b { font-weight: 600; }
-  .r-job-title { display: flex; justify-content: space-between; font-weight: bold; font-size: 11pt; margin-top: 6pt; }
-  .r-job-company { font-style: italic; color: #555; font-size: 10.5pt; margin-bottom: 2pt; }
+  .r-skill-row b { font-weight: 600; color: #1a1a1a; }
+  .r-job-title { display: flex; justify-content: space-between; font-weight: 600; font-size: 11pt; margin-top: 6pt; color: #1a1a1a; }
+  .r-job-company { font-style: italic; color: var(--muted); font-size: 10.5pt; margin-bottom: 2pt; }
   .r-project-head { font-size: 10.5pt; margin-top: 4pt; margin-bottom: 2pt; }
-  .r-project-head b { font-weight: bold; }
-  .r-project-head span { color: #444; }
+  .r-project-head b { font-weight: 600; color: #1a1a1a; }
+  .r-project-head span { color: var(--muted); }
   .r-bullets { margin: 0; padding-left: 18px; }
-  .r-bullets li { margin-bottom: 0; }
-  .r-tech { font-size: 9.5pt; color: #555; font-style: italic; margin-left: 18px; margin-top: 2pt; margin-bottom: 4pt; }
-  .r-tech b { font-weight: bold; font-style: normal; }
-  .r-edu-row { display: flex; justify-content: space-between; font-weight: bold; margin-top: 4pt; }
-  .r-edu-school { font-style: italic; color: #555; }
+  .r-bullets li { margin-bottom: 1pt; color: #2a2a2a; }
+  .r-tech { font-size: 9.5pt; color: var(--muted); font-style: italic; margin-left: 18px; margin-top: 2pt; margin-bottom: 4pt; }
+  .r-tech b { font-weight: 600; font-style: normal; color: #444; }
+  .r-edu-row { display: flex; justify-content: space-between; font-weight: 600; margin-top: 4pt; color: #1a1a1a; }
+  .r-edu-school { font-style: italic; color: var(--muted); }
 
   /* ---------- Modals ---------- */
   .modal-backdrop {
@@ -174,7 +181,7 @@
   /* ---------- Print ---------- */
   @media print {
     body { background: #fff; }
-    .sidebar, .preview-pane-header { display: none !important; }
+    .sidebar, .preview-pane-header, #toast, .modal-backdrop { display: none !important; }
     .app { display: block; }
     .preview-pane { overflow: visible; padding: 0; background: #fff; }
     .resume-preview { box-shadow: none; margin: 0; padding: 0.5in 0.7in; width: 100%; }
@@ -782,75 +789,76 @@ async function exportDocx() {
   const docx = window.docx;
   const { Document, Packer, Paragraph, TextRun, AlignmentType, LevelFormat, BorderStyle,
           TabStopType, TabStopPosition, ExternalHyperlink } = docx;
-  const FONT = 'Calibri';
+  const FONT = 'Aptos';             // Word's modern default; falls back nicely to Calibri on older Word
+  const ACCENT = '1E3A5F';          // slate blue
 
   // Helpers (mirror Node build script)
   const sectionHeading = (text) => new Paragraph({
     spacing: { before: 160, after: 60 },
-    border: { bottom: { color: '000000', space: 2, style: BorderStyle.SINGLE, size: 6 } },
-    children: [new TextRun({ text: text.toUpperCase(), bold: true, size: 23, font: FONT, characterSpacing: 20 })]
+    border: { bottom: { color: ACCENT, space: 2, style: BorderStyle.SINGLE, size: 8 } },
+    children: [new TextRun({ text: text.toUpperCase(), bold: true, size: 22, font: FONT, characterSpacing: 28, color: ACCENT })]
   });
   const nameHeader = (t) => new Paragraph({
     alignment: AlignmentType.CENTER, spacing: { after: 40 },
-    children: [new TextRun({ text: t, bold: true, size: 40, font: FONT })]
+    children: [new TextRun({ text: t, bold: true, size: 44, font: FONT, color: ACCENT, characterSpacing: 16 })]
   });
   const roleTagline = (t) => new Paragraph({
     alignment: AlignmentType.CENTER, spacing: { after: 40 },
-    children: [new TextRun({ text: t, size: 22, font: FONT, color: '444444' })]
+    children: [new TextRun({ text: t, size: 22, font: FONT, color: '5c5c66' })]
   });
   const contactLine = (parts) => {
     const kids = [];
     parts.forEach((p, i) => {
-      if (i > 0) kids.push(new TextRun({ text: '  |  ', size: 20, font: FONT, color: '777777' }));
+      if (i > 0) kids.push(new TextRun({ text: '  |  ', size: 19, font: FONT, color: 'a8a8b0' }));
       if (p.url) {
         kids.push(new ExternalHyperlink({ link: p.url,
-          children: [new TextRun({ text: p.text, size: 20, font: FONT, color: '0563C1', underline: {} })] }));
+          children: [new TextRun({ text: p.text, size: 19, font: FONT, color: ACCENT, underline: {} })] }));
       } else {
-        kids.push(new TextRun({ text: p.text, size: 20, font: FONT }));
+        kids.push(new TextRun({ text: p.text, size: 19, font: FONT, color: '444444' }));
       }
     });
     return new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 40 }, children: kids });
   };
   const body = (text) => new Paragraph({
-    spacing: { after: 60, line: 264 },
-    children: [new TextRun({ text, size: 21, font: FONT })]
+    spacing: { after: 60, line: 276 },
+    children: [new TextRun({ text, size: 21, font: FONT, color: '2a2a2a' })]
   });
   const jobHeader = ({ title, company, location, dates }) => ([
     new Paragraph({
       spacing: { before: 120, after: 0 },
       tabStops: [{ type: TabStopType.RIGHT, position: TabStopPosition.MAX }],
       children: [
-        new TextRun({ text: title, bold: true, size: 22, font: FONT }),
+        new TextRun({ text: title, bold: true, size: 22, font: FONT, color: '1a1a1a' }),
         new TextRun({ text: '\t', size: 22, font: FONT }),
-        new TextRun({ text: dates, size: 21, font: FONT, color: '444444' })
+        new TextRun({ text: dates, size: 20, font: FONT, color: '5c5c66' })
       ]
     }),
     new Paragraph({
       spacing: { after: 40 },
       children: [
-        new TextRun({ text: company, size: 21, font: FONT, italics: true }),
-        location ? new TextRun({ text: ' — ' + location, size: 21, font: FONT, italics: true, color: '555555' }) : new TextRun({ text: '' })
+        new TextRun({ text: company, size: 21, font: FONT, italics: true, color: '5c5c66' }),
+        location ? new TextRun({ text: ' — ' + location, size: 21, font: FONT, italics: true, color: '5c5c66' }) : new TextRun({ text: '' })
       ]
     })
   ]);
   const projectHead = (name, tagline) => new Paragraph({
     spacing: { before: 60, after: 10 },
     children: [
-      new TextRun({ text: name + ' ', bold: true, size: 21, font: FONT }),
-      tagline ? new TextRun({ text: '— ' + tagline, size: 21, font: FONT, color: '444444' }) : new TextRun({ text: '' })
+      new TextRun({ text: name + ' ', bold: true, size: 21, font: FONT, color: '1a1a1a' }),
+      tagline ? new TextRun({ text: '— ' + tagline, size: 21, font: FONT, color: '5c5c66' }) : new TextRun({ text: '' })
     ]
   });
   const bullet = (text) => new Paragraph({
     numbering: { reference: 'bullets', level: 0 },
-    spacing: { after: 0, line: 264 },
-    children: [new TextRun({ text, size: 21, font: FONT })]
+    spacing: { after: 0, line: 276 },
+    children: [new TextRun({ text, size: 21, font: FONT, color: '2a2a2a' })]
   });
   const techStack = (text) => new Paragraph({
     spacing: { after: 40, line: 260 },
     indent: { left: 360 },
     children: [
-      new TextRun({ text: 'Tech: ', bold: true, size: 20, font: FONT, color: '555555' }),
-      new TextRun({ text, size: 20, font: FONT, color: '555555', italics: true })
+      new TextRun({ text: 'Tech: ', bold: true, size: 20, font: FONT, color: '444444' }),
+      new TextRun({ text, size: 20, font: FONT, color: '5c5c66', italics: true })
     ]
   });
   const skillRow = (category, items) => new Paragraph({
@@ -918,14 +926,14 @@ async function exportDocx() {
         spacing: { before: 60, after: 10 },
         tabStops: [{ type: TabStopType.RIGHT, position: TabStopPosition.MAX }],
         children: [
-          new TextRun({ text: e.degree, bold: true, size: 22, font: FONT }),
+          new TextRun({ text: e.degree, bold: true, size: 22, font: FONT, color: '1a1a1a' }),
           new TextRun({ text: '\t', size: 22, font: FONT }),
-          new TextRun({ text: e.year ? 'Graduated: ' + e.year : '', size: 21, font: FONT, color: '444444' })
+          new TextRun({ text: e.year ? 'Graduated: ' + e.year : '', size: 20, font: FONT, color: '5c5c66' })
         ]
       }));
       if (e.school) children.push(new Paragraph({
         spacing: { after: 60 },
-        children: [new TextRun({ text: e.school, size: 21, font: FONT, italics: true, color: '555555' })]
+        children: [new TextRun({ text: e.school, size: 21, font: FONT, italics: true, color: '5c5c66' })]
       }));
     });
   }
@@ -933,7 +941,7 @@ async function exportDocx() {
   const doc = new Document({
     creator: state.fullName || 'Resume Builder',
     title: (state.fullName || 'Resume') + ' — Resume',
-    styles: { default: { document: { run: { font: FONT, size: 21 } } } },
+    styles: { default: { document: { run: { font: FONT, size: 21, color: '2a2a2a' } } } },
     numbering: {
       config: [{
         reference: 'bullets',
@@ -968,8 +976,10 @@ function downloadBlob(blob, filename) {
 // PDF EXPORT — use browser print dialog
 // ======================================================================
 function exportPdf() {
-  toast('Opening print dialog — choose "Save as PDF"');
-  setTimeout(() => window.print(), 300);
+  // Hide any visible toast before printing
+  const t = document.getElementById('toast');
+  if (t) t.classList.remove('show');
+  setTimeout(() => window.print(), 100);
 }
 
 // ======================================================================
