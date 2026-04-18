@@ -4,9 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Resume Builder — Swaraj's Template</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; }
   body {
@@ -121,39 +118,114 @@
     margin: 0 auto;
     padding: 0.5in 0.7in;
     box-shadow: 0 1px 4px rgba(0,0,0,0.08), 0 8px 24px rgba(0,0,0,0.08);
-    font-family: "Inter", "Calibri", "Segoe UI", Arial, sans-serif;
-    color: #222;
-    font-size: 10.5pt;
+    font-family: "Calibri", "Carlito", "Liberation Sans", Arial, sans-serif;
+    color: #000;
+    font-size: 11pt;
     line-height: 1.4;
-    --accent: #1E3A5F;
-    --muted: #5c5c66;
-    --rule: #c7cdd4;
   }
-  .r-name { text-align: center; font-size: 22pt; font-weight: 700; margin-bottom: 2pt; letter-spacing: 0.8pt; color: var(--accent); }
-  .r-tagline { text-align: center; font-size: 11pt; color: var(--muted); margin-bottom: 4pt; font-weight: 500; }
-  .r-contact { text-align: center; font-size: 9.5pt; margin-bottom: 10pt; color: #444; }
-  .r-contact a { color: var(--accent); text-decoration: none; border-bottom: 0.5pt solid var(--accent); }
-  .r-contact .sep { color: #a8a8b0; margin: 0 6px; }
+  .r-name {
+    text-align: center;
+    font-size: 26pt;
+    font-weight: 300;
+    margin-bottom: 4pt;
+    letter-spacing: 4pt;
+    color: #000;
+  }
+  .r-tagline {
+    text-align: center;
+    font-size: 10.5pt;
+    color: #333;
+    margin-bottom: 2pt;
+  }
+  .r-contact {
+    text-align: center;
+    font-size: 10pt;
+    margin-bottom: 10pt;
+    color: #000;
+  }
+  .r-contact a { color: #0563C1; text-decoration: underline; }
+  .r-contact .sep { color: #000; margin: 0 4px; }
   .r-heading {
-    font-size: 11pt; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 1.4pt; color: var(--accent);
-    border-bottom: 1pt solid var(--accent);
-    padding-bottom: 2pt; margin-top: 10pt; margin-bottom: 5pt;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 12pt;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 2.5pt;
+    color: #000;
+    margin-top: 12pt;
+    margin-bottom: 4pt;
   }
-  .r-summary { margin-bottom: 4pt; text-align: justify; color: #2a2a2a; }
-  .r-skill-row { margin-bottom: 0; }
-  .r-skill-row b { font-weight: 600; color: #1a1a1a; }
-  .r-job-title { display: flex; justify-content: space-between; font-weight: 600; font-size: 11pt; margin-top: 6pt; color: #1a1a1a; }
-  .r-job-company { font-style: italic; color: var(--muted); font-size: 10.5pt; margin-bottom: 2pt; }
-  .r-project-head { font-size: 10.5pt; margin-top: 4pt; margin-bottom: 2pt; }
-  .r-project-head b { font-weight: 600; color: #1a1a1a; }
-  .r-project-head span { color: var(--muted); }
-  .r-bullets { margin: 0; padding-left: 18px; }
-  .r-bullets li { margin-bottom: 1pt; color: #2a2a2a; }
-  .r-tech { font-size: 9.5pt; color: var(--muted); font-style: italic; margin-left: 18px; margin-top: 2pt; margin-bottom: 4pt; }
-  .r-tech b { font-weight: 600; font-style: normal; color: #444; }
-  .r-edu-row { display: flex; justify-content: space-between; font-weight: 600; margin-top: 4pt; color: #1a1a1a; }
-  .r-edu-school { font-style: italic; color: var(--muted); }
+  .r-heading::after {
+    content: "";
+    flex: 1;
+    height: 0;
+    border-bottom: 0.5pt solid #b0b0b0;
+    margin-left: 4px;
+  }
+  .r-summary { margin-bottom: 4pt; color: #000; }
+  .r-skills-list { margin: 0; padding-left: 22px; }
+  .r-skills-list li { margin-bottom: 0; color: #000; list-style: none; position: relative; }
+  .r-skills-list li::before {
+    content: "▪"; position: absolute; left: -14px; color: #000; font-size: 9pt; top: 1pt;
+  }
+  .r-skills-list li b { font-weight: 700; }
+  .r-job-company {
+    font-size: 10.5pt;
+    font-weight: 700;
+    color: #000;
+    margin-top: 8pt;
+    margin-bottom: 1pt;
+  }
+  .r-job-title {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 400;
+    font-size: 10.5pt;
+    margin-bottom: 2pt;
+    color: #000;
+  }
+  .r-project-head {
+    font-size: 10.5pt;
+    margin-top: 8pt;
+    margin-bottom: 1pt;
+    color: #000;
+  }
+  .r-project-head .pname {
+    color: #2E74B5;
+    text-decoration: underline;
+    font-weight: 700;
+  }
+  .r-project-head .ptagline { font-weight: 700; color: #000; }
+  .r-project-link {
+    font-size: 10pt;
+    color: #000;
+    margin-bottom: 2pt;
+  }
+  .r-project-link a { color: #0563C1; text-decoration: underline; }
+  .r-bullets {
+    margin: 0;
+    padding-left: 22px;
+    list-style: none;
+  }
+  .r-bullets li {
+    margin-bottom: 0;
+    color: #000;
+    position: relative;
+  }
+  .r-bullets li::before {
+    content: "▪"; position: absolute; left: -14px; color: #000; font-size: 9pt; top: 1pt;
+  }
+  .r-bullets li b { font-weight: 700; }
+  .r-tech-inline { display: inline; }
+  .r-tech-inline b { font-weight: 700; }
+  .r-edu-row {
+    font-weight: 700;
+    margin-top: 4pt;
+    color: #000;
+  }
+  .r-edu-school { color: #000; font-weight: 400; }
 
   /* ---------- Modals ---------- */
   .modal-backdrop {
@@ -638,6 +710,16 @@ function escapeAttr(s) {
 }
 function escapeHtml(s) { return escapeAttr(s); }
 
+// If a bullet starts with "Label: rest of sentence", auto-bold the label.
+// This matches the template's "Building Apps: I use Dart..." style.
+function renderBoldLabel(s) {
+  const text = escapeHtml(s || '');
+  // Match only if the label is reasonable length (< 40 chars) and has a word boundary before colon
+  const m = text.match(/^([A-Z][A-Za-z0-9 &/,'\-]{0,38}):\s+(.+)$/);
+  if (m) return `<b>${m[1]}:</b> ${m[2]}`;
+  return text;
+}
+
 // ======================================================================
 // ADD / REMOVE HANDLERS
 // ======================================================================
@@ -718,32 +800,39 @@ function updatePreview() {
   if (contacts.length) parts.push(`<div class="r-contact">${contacts.join('<span class="sep">|</span>')}</div>`);
 
   if (state.summary) {
-    parts.push(`<div class="r-heading">Professional Summary</div>`);
+    parts.push(`<div class="r-heading">Summary</div>`);
     parts.push(`<div class="r-summary">${escapeHtml(state.summary)}</div>`);
   }
 
   if (state.skills.length) {
-    parts.push(`<div class="r-heading">Technical Skills</div>`);
+    parts.push(`<div class="r-heading">Skills</div>`);
+    parts.push('<ul class="r-skills-list">');
     state.skills.forEach(s => {
       if (s.category || s.items)
-        parts.push(`<div class="r-skill-row"><b>${escapeHtml(s.category)}:</b> ${escapeHtml(s.items)}</div>`);
+        parts.push(`<li><b>${escapeHtml(s.category)}:</b> ${escapeHtml(s.items)}</li>`);
     });
+    parts.push('</ul>');
   }
 
   if (state.experience.length) {
-    parts.push(`<div class="r-heading">Professional Experience</div>`);
+    parts.push(`<div class="r-heading">Experience</div>`);
     state.experience.forEach(job => {
-      parts.push(`<div class="r-job-title"><span>${escapeHtml(job.title)}</span><span style="font-weight:normal;color:#444;">${escapeHtml(job.dates)}</span></div>`);
-      parts.push(`<div class="r-job-company">${escapeHtml(job.company)}${job.location?' — '+escapeHtml(job.location):''}</div>`);
+      parts.push(`<div class="r-job-company">${escapeHtml(job.company)}</div>`);
+      const roleLeft = escapeHtml(job.title) + (job.location ? ' | ' + escapeHtml(job.location) : '');
+      parts.push(`<div class="r-job-title"><span>${roleLeft}</span><span>${escapeHtml(job.dates)}</span></div>`);
       job.projects.forEach(p => {
-        if (p.name || p.tagline)
-          parts.push(`<div class="r-project-head"><b>${escapeHtml(p.name)}</b>${p.tagline?' <span>— '+escapeHtml(p.tagline)+'</span>':''}</div>`);
-        if (p.bullets.length) {
+        if (p.name || p.tagline) {
+          const pname = p.name ? `<span class="pname">${escapeHtml(p.name)}</span>` : '';
+          const ptag = p.tagline ? `<span class="ptagline">${pname ? ' – ' : ''}${escapeHtml(p.tagline)}</span>` : '';
+          parts.push(`<div class="r-project-head">${pname}${ptag}</div>`);
+        }
+        const hasBullets = (p.bullets && p.bullets.length) || p.tech;
+        if (hasBullets) {
           parts.push('<ul class="r-bullets">');
-          p.bullets.forEach(b => parts.push(`<li>${escapeHtml(b)}</li>`));
+          (p.bullets || []).forEach(b => parts.push(`<li>${renderBoldLabel(b)}</li>`));
+          if (p.tech) parts.push(`<li><b>Technologies Used:</b> ${escapeHtml(p.tech)}</li>`);
           parts.push('</ul>');
         }
-        if (p.tech) parts.push(`<div class="r-tech"><b>Tech:</b> ${escapeHtml(p.tech)}</div>`);
       });
     });
   }
@@ -753,14 +842,18 @@ function updatePreview() {
     if (visible.length) {
       parts.push(`<div class="r-heading">Projects</div>`);
       visible.forEach(p => {
-        if (p.name || p.tagline)
-          parts.push(`<div class="r-project-head"><b>${escapeHtml(p.name)}</b>${p.tagline?' <span>— '+escapeHtml(p.tagline)+'</span>':''}</div>`);
-        if (p.bullets && p.bullets.length) {
+        if (p.name || p.tagline) {
+          const pname = p.name ? `<span class="pname">${escapeHtml(p.name)}</span>` : '';
+          const ptag = p.tagline ? `<span class="ptagline">${pname ? ' – ' : ''}${escapeHtml(p.tagline)}</span>` : '';
+          parts.push(`<div class="r-project-head">${pname}${ptag}</div>`);
+        }
+        const hasBullets = (p.bullets && p.bullets.length) || p.tech;
+        if (hasBullets) {
           parts.push('<ul class="r-bullets">');
-          p.bullets.forEach(b => parts.push(`<li>${escapeHtml(b)}</li>`));
+          (p.bullets || []).forEach(b => parts.push(`<li>${renderBoldLabel(b)}</li>`));
+          if (p.tech) parts.push(`<li><b>Technologies Used:</b> ${escapeHtml(p.tech)}</li>`);
           parts.push('</ul>');
         }
-        if (p.tech) parts.push(`<div class="r-tech"><b>Tech:</b> ${escapeHtml(p.tech)}</div>`);
       });
     }
   }
@@ -768,8 +861,9 @@ function updatePreview() {
   if (state.education.length) {
     parts.push(`<div class="r-heading">Education</div>`);
     state.education.forEach(e => {
-      parts.push(`<div class="r-edu-row"><span>${escapeHtml(e.degree)}</span><span style="font-weight:normal;color:#444;">${e.year?'Graduated: '+escapeHtml(e.year):''}</span></div>`);
+      if (e.degree) parts.push(`<div class="r-edu-row"><b>${escapeHtml(e.degree)}</b></div>`);
       if (e.school) parts.push(`<div class="r-edu-school">${escapeHtml(e.school)}</div>`);
+      if (e.year) parts.push(`<div class="r-edu-school">Graduation Year: ${escapeHtml(e.year)}</div>`);
     });
   }
 
@@ -789,76 +883,127 @@ async function exportDocx() {
   const docx = window.docx;
   const { Document, Packer, Paragraph, TextRun, AlignmentType, LevelFormat, BorderStyle,
           TabStopType, TabStopPosition, ExternalHyperlink } = docx;
-  const FONT = 'Aptos';             // Word's modern default; falls back nicely to Calibri on older Word
-  const ACCENT = '1E3A5F';          // slate blue
+  const FONT = 'Calibri';
+  const BLACK = '000000';
+  const RULE_GREY = 'B0B0B0';
+  const LINK_BLUE = '0563C1';
+  const PROJECT_BLUE = '2E74B5';
 
-  // Helpers (mirror Node build script)
+  // Section heading: "SUMMARY ─────────"
+  // Uses a paragraph with heading text, tab, then an empty text run with a bottom border on the paragraph
+  // applied only after the tab. Simplest reliable approach: heading text + tab + very long single-line underscore run.
   const sectionHeading = (text) => new Paragraph({
-    spacing: { before: 160, after: 60 },
-    border: { bottom: { color: ACCENT, space: 2, style: BorderStyle.SINGLE, size: 8 } },
-    children: [new TextRun({ text: text.toUpperCase(), bold: true, size: 22, font: FONT, characterSpacing: 28, color: ACCENT })]
+    spacing: { before: 200, after: 80 },
+    tabStops: [{ type: TabStopType.RIGHT, position: TabStopPosition.MAX }],
+    children: [
+      new TextRun({
+        text: text.toUpperCase().split('').join(' '),
+        size: 24, font: FONT, color: BLACK, characterSpacing: 10
+      }),
+      new TextRun({ text: '  ', size: 20, font: FONT }),
+      // Long dash rule after heading — renders as continuous line
+      new TextRun({
+        text: '\t',
+        size: 20, font: FONT
+      }),
+      new TextRun({
+        // Em-dashes create a clean-looking horizontal rule extending to right margin.
+        // Using many em-dashes so tab+right-align fills fully with a line.
+        text: '─'.repeat(60),
+        size: 16, font: FONT, color: RULE_GREY
+      })
+    ]
   });
   const nameHeader = (t) => new Paragraph({
     alignment: AlignmentType.CENTER, spacing: { after: 40 },
-    children: [new TextRun({ text: t, bold: true, size: 44, font: FONT, color: ACCENT, characterSpacing: 16 })]
+    children: [new TextRun({
+      text: t.toUpperCase(),
+      size: 52, font: FONT, color: BLACK, characterSpacing: 60
+    })]
   });
   const roleTagline = (t) => new Paragraph({
     alignment: AlignmentType.CENTER, spacing: { after: 40 },
-    children: [new TextRun({ text: t, size: 22, font: FONT, color: '5c5c66' })]
+    children: [new TextRun({ text: t, size: 21, font: FONT, color: '333333' })]
   });
   const contactLine = (parts) => {
     const kids = [];
     parts.forEach((p, i) => {
-      if (i > 0) kids.push(new TextRun({ text: '  |  ', size: 19, font: FONT, color: 'a8a8b0' }));
+      if (i > 0) kids.push(new TextRun({ text: ' | ', size: 20, font: FONT, color: BLACK }));
       if (p.url) {
         kids.push(new ExternalHyperlink({ link: p.url,
-          children: [new TextRun({ text: p.text, size: 19, font: FONT, color: ACCENT, underline: {} })] }));
+          children: [new TextRun({ text: p.text, size: 20, font: FONT, color: LINK_BLUE, underline: {} })] }));
       } else {
-        kids.push(new TextRun({ text: p.text, size: 19, font: FONT, color: '444444' }));
+        kids.push(new TextRun({ text: p.text, size: 20, font: FONT, color: BLACK }));
       }
     });
-    return new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 40 }, children: kids });
+    return new Paragraph({ alignment: AlignmentType.CENTER, spacing: { after: 120 }, children: kids });
   };
   const body = (text) => new Paragraph({
     spacing: { after: 60, line: 276 },
-    children: [new TextRun({ text, size: 21, font: FONT, color: '2a2a2a' })]
+    children: [new TextRun({ text, size: 21, font: FONT, color: BLACK })]
   });
-  const jobHeader = ({ title, company, location, dates }) => ([
-    new Paragraph({
-      spacing: { before: 120, after: 0 },
+
+  // Company name (bold, not uppercase — matches reference: "CBNITS INDIA PVT. LTD." bold)
+  const jobHeader = ({ title, company, location, dates }) => {
+    const rows = [];
+    if (company) {
+      rows.push(new Paragraph({
+        spacing: { before: 140, after: 0 },
+        children: [new TextRun({ text: company, bold: true, size: 21, font: FONT, color: BLACK })]
+      }));
+    }
+    const leftBits = [];
+    if (title) leftBits.push(title);
+    if (location) leftBits.push(location);
+    rows.push(new Paragraph({
+      spacing: { after: 40 },
       tabStops: [{ type: TabStopType.RIGHT, position: TabStopPosition.MAX }],
       children: [
-        new TextRun({ text: title, bold: true, size: 22, font: FONT, color: '1a1a1a' }),
-        new TextRun({ text: '\t', size: 22, font: FONT }),
-        new TextRun({ text: dates, size: 20, font: FONT, color: '5c5c66' })
+        new TextRun({ text: leftBits.join(' | '), size: 21, font: FONT, color: BLACK }),
+        new TextRun({ text: '\t', size: 21, font: FONT }),
+        new TextRun({ text: dates || '', size: 21, font: FONT, color: BLACK })
       ]
-    }),
-    new Paragraph({
-      spacing: { after: 40 },
-      children: [
-        new TextRun({ text: company, size: 21, font: FONT, italics: true, color: '5c5c66' }),
-        location ? new TextRun({ text: ' — ' + location, size: 21, font: FONT, italics: true, color: '5c5c66' }) : new TextRun({ text: '' })
-      ]
-    })
-  ]);
-  const projectHead = (name, tagline) => new Paragraph({
-    spacing: { before: 60, after: 10 },
-    children: [
-      new TextRun({ text: name + ' ', bold: true, size: 21, font: FONT, color: '1a1a1a' }),
-      tagline ? new TextRun({ text: '— ' + tagline, size: 21, font: FONT, color: '5c5c66' }) : new TextRun({ text: '' })
-    ]
-  });
-  const bullet = (text) => new Paragraph({
+    }));
+    return rows;
+  };
+
+  // Project head: blue underlined name, then " – tagline" in bold black
+  const projectHead = (name, tagline) => {
+    const kids = [];
+    if (name) kids.push(new TextRun({ text: name, bold: true, size: 21, font: FONT, color: PROJECT_BLUE, underline: {} }));
+    if (tagline) {
+      if (name) kids.push(new TextRun({ text: ' – ', bold: true, size: 21, font: FONT, color: BLACK }));
+      kids.push(new TextRun({ text: tagline, bold: true, size: 21, font: FONT, color: BLACK }));
+    }
+    return new Paragraph({
+      spacing: { before: 140, after: 20 },
+      children: kids
+    });
+  };
+
+  // Bullet with optional bold label ("Building Apps: I use...")
+  const bullet = (text) => {
+    const m = (text || '').match(/^([A-Z][A-Za-z0-9 &/,'\-]{0,38}):\s+(.+)$/);
+    const runs = m
+      ? [
+          new TextRun({ text: m[1] + ': ', bold: true, size: 21, font: FONT, color: BLACK }),
+          new TextRun({ text: m[2], size: 21, font: FONT, color: BLACK })
+        ]
+      : [new TextRun({ text, size: 21, font: FONT, color: BLACK })];
+    return new Paragraph({
+      numbering: { reference: 'bullets', level: 0 },
+      spacing: { after: 0, line: 276 },
+      children: runs
+    });
+  };
+
+  // Tech now renders as a bullet with bold "Technologies Used:" label
+  const techBullet = (text) => new Paragraph({
     numbering: { reference: 'bullets', level: 0 },
-    spacing: { after: 0, line: 276 },
-    children: [new TextRun({ text, size: 21, font: FONT, color: '2a2a2a' })]
-  });
-  const techStack = (text) => new Paragraph({
-    spacing: { after: 40, line: 260 },
-    indent: { left: 360 },
+    spacing: { after: 60, line: 276 },
     children: [
-      new TextRun({ text: 'Tech: ', bold: true, size: 20, font: FONT, color: '444444' }),
-      new TextRun({ text, size: 20, font: FONT, color: '5c5c66', italics: true })
+      new TextRun({ text: 'Technologies Used: ', bold: true, size: 21, font: FONT, color: BLACK }),
+      new TextRun({ text, size: 21, font: FONT, color: BLACK })
     ]
   });
   const skillRow = (category, items) => new Paragraph({
@@ -884,25 +1029,25 @@ async function exportDocx() {
   if (contactParts.length) children.push(contactLine(contactParts));
 
   if (state.summary) {
-    children.push(sectionHeading('Professional Summary'));
+    children.push(sectionHeading('Summary'));
     children.push(body(state.summary));
   }
 
   if (state.skills.length) {
-    children.push(sectionHeading('Technical Skills'));
+    children.push(sectionHeading('Skills'));
     state.skills.forEach(s => {
       if (s.category || s.items) children.push(skillRow(s.category, s.items));
     });
   }
 
   if (state.experience.length) {
-    children.push(sectionHeading('Professional Experience'));
+    children.push(sectionHeading('Experience'));
     state.experience.forEach(job => {
       children.push(...jobHeader(job));
       job.projects.forEach(p => {
         if (p.name || p.tagline) children.push(projectHead(p.name, p.tagline));
         p.bullets.forEach(b => { if (b.trim()) children.push(bullet(b)); });
-        if (p.tech) children.push(techStack(p.tech));
+        if (p.tech) children.push(techBullet(p.tech));
       });
     });
   }
@@ -914,7 +1059,7 @@ async function exportDocx() {
       visible.forEach(p => {
         if (p.name || p.tagline) children.push(projectHead(p.name, p.tagline));
         (p.bullets || []).forEach(b => { if (b.trim()) children.push(bullet(b)); });
-        if (p.tech) children.push(techStack(p.tech));
+        if (p.tech) children.push(techBullet(p.tech));
       });
     }
   }
@@ -922,18 +1067,17 @@ async function exportDocx() {
   if (state.education.length) {
     children.push(sectionHeading('Education'));
     state.education.forEach(e => {
-      children.push(new Paragraph({
-        spacing: { before: 60, after: 10 },
-        tabStops: [{ type: TabStopType.RIGHT, position: TabStopPosition.MAX }],
-        children: [
-          new TextRun({ text: e.degree, bold: true, size: 22, font: FONT, color: '1a1a1a' }),
-          new TextRun({ text: '\t', size: 22, font: FONT }),
-          new TextRun({ text: e.year ? 'Graduated: ' + e.year : '', size: 20, font: FONT, color: '5c5c66' })
-        ]
+      if (e.degree) children.push(new Paragraph({
+        spacing: { before: 40, after: 20 },
+        children: [new TextRun({ text: e.degree, bold: true, size: 22, font: FONT, color: BLACK })]
       }));
       if (e.school) children.push(new Paragraph({
+        spacing: { after: 20 },
+        children: [new TextRun({ text: e.school, size: 21, font: FONT, color: BLACK })]
+      }));
+      if (e.year) children.push(new Paragraph({
         spacing: { after: 60 },
-        children: [new TextRun({ text: e.school, size: 21, font: FONT, italics: true, color: '5c5c66' })]
+        children: [new TextRun({ text: 'Graduation Year: ' + e.year, size: 21, font: FONT, color: BLACK })]
       }));
     });
   }
@@ -941,12 +1085,12 @@ async function exportDocx() {
   const doc = new Document({
     creator: state.fullName || 'Resume Builder',
     title: (state.fullName || 'Resume') + ' — Resume',
-    styles: { default: { document: { run: { font: FONT, size: 21, color: '2a2a2a' } } } },
+    styles: { default: { document: { run: { font: FONT, size: 21, color: BLACK } } } },
     numbering: {
       config: [{
         reference: 'bullets',
         levels: [{
-          level: 0, format: LevelFormat.BULLET, text: '•', alignment: AlignmentType.LEFT,
+          level: 0, format: LevelFormat.BULLET, text: '▪', alignment: AlignmentType.LEFT,
           style: { paragraph: { indent: { left: 360, hanging: 220 } } }
         }]
       }]
